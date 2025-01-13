@@ -1,4 +1,4 @@
-package com.example.jaksim.challenge.dto;
+package com.example.jaksim.challenge.dto.challenge;
 
 public class ParticipantResponse {
     private String userUuid;

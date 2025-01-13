@@ -1,4 +1,4 @@
-package com.example.jaksim.challenge.dto;
+package com.example.jaksim.challenge.dto.challenge;
 
 import java.time.LocalDateTime;
 import java.util.List;

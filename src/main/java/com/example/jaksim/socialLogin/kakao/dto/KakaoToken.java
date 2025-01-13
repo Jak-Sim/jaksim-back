@@ -7,9 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-/**
- * accessToken, refreshTeken을 저장하기위한 필드
- */
+
 @ToString
 @Getter
 @NoArgsConstructor
@@ -26,11 +24,6 @@ public class KakaoToken {
         return new KakaoToken(null, null);
     }
 
-    /**
-     * code값을 통해 들어온 필드값 생성자
-     * @param accessToken accessToken
-     * @param refreshToken refreshToken
-     */
     private KakaoToken(final String accessToken, final String refreshToken) {
 
         this.accessToken = accessToken;

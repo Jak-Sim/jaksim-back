@@ -1,9 +1,9 @@
 package com.example.jaksim.challenge.service;
 
-import com.example.jaksim.challenge.dto.ChallengeCreateRequest;
-import com.example.jaksim.challenge.dto.ChallengeDetailResponse;
-import com.example.jaksim.challenge.dto.ChallengeListResponse;
-import com.example.jaksim.challenge.dto.ParticipantResponse;
+import com.example.jaksim.challenge.dto.challenge.ChallengeCreateRequest;
+import com.example.jaksim.challenge.dto.challenge.ChallengeDetailResponse;
+import com.example.jaksim.challenge.dto.challenge.ChallengeListResponse;
+import com.example.jaksim.challenge.dto.challenge.ParticipantResponse;
 import com.example.jaksim.challenge.entity.Challenge;
 import com.example.jaksim.challenge.repository.ChallengeRepository;
 import com.example.jaksim.common.ResponseDto;

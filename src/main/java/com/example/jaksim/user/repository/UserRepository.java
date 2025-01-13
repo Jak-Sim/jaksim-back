@@ -16,4 +16,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	@Query("SELECT u FROM User u JOIN u.challengeIds c WHERE c = :challengeId")
     List<User> findUsersByChallengeId(@Param("challengeId") Long challengeId);
+
+	Optional<User> findByUserUuid(UUID userUuid);
 }

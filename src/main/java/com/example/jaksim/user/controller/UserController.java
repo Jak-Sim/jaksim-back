@@ -3,9 +3,14 @@ package com.example.jaksim.user.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.example.jaksim.user.dto.UserUpdateDto;
 import com.example.jaksim.user.dto.UsernameCheckRequest;
 import com.example.jaksim.user.service.UserService;
+import com.example.jaksim.user.entity.User;
+import java.util.UUID;
+
 
 @RestController
 public class UserController {
@@ -27,6 +32,14 @@ public class UserController {
 		}
 	}
 
-	// @GetMapping("")
-	// public 
+	@PutMapping("/user/update/{userUuid}")
+    public ResponseEntity<User> updateUser(
+            @PathVariable UUID userUuid,
+            @ModelAttribute UserUpdateDto userUpdateDto,
+            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage) {
+        User updatedUser = userService.updateUser(userUuid, userUpdateDto, profileImage);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+	
 }

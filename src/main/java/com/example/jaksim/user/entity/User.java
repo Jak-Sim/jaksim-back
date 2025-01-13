@@ -47,7 +47,7 @@ public class User {
     @Column(name = "challenge_id")
     private List<Long> challengeIds;
 	
-
+	//유저 
 
 	public User() {
 		this.userUuid = UUID.randomUUID();

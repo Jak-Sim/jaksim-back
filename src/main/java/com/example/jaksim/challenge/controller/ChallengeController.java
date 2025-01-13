@@ -1,6 +1,10 @@
 package com.example.jaksim.challenge.controller;
 
 import com.example.jaksim.challenge.dto.*;
+import com.example.jaksim.challenge.dto.challenge.ChallengeCreateRequest;
+import com.example.jaksim.challenge.dto.challenge.ChallengeDetailResponse;
+import com.example.jaksim.challenge.dto.challenge.ChallengeFindRequest;
+import com.example.jaksim.challenge.dto.challenge.ChallengeListResponse;
 import com.example.jaksim.challenge.service.ChallengeService;
 import com.example.jaksim.common.ResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
