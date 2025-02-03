@@ -48,6 +48,23 @@ public class ChallengeService {
 			.collect(Collectors.toList());
 	}
 
+	// 챌린지 개인별 조회
+	public List<ChallengeListResponse> getPersonalChallenges(int page, String userUuid){
+		Pageable pageable = PageRequest.of(page, 10); 
+		
+		List<Long> challengeIds = userRepository.findByUserUuid(UUID.fromString(userUuid)).get().getChallengeIds();
+
+		Page<Challenge> challengePage = challengeRepository.findByChallengeIdIn(challengeIds, pageable);
+		return challengePage.getContent().stream()
+			.map(challenge -> new ChallengeListResponse(
+				challenge.getChallengeId(),
+				challenge.getName(),
+				challenge.getBackgroundImage(),
+				challenge.getCreatorUuid(),
+				challenge.getCreatedAt()))
+			.collect(Collectors.toList());
+	}
+
 	// 챌린지 상세 조회
 	public ChallengeDetailResponse getChallengeDetail(Long challengeId) {
 		Challenge challenge = challengeRepository.findByChallengeId(challengeId);

@@ -12,8 +12,6 @@ import com.example.jaksim.user.entity.User;
 public interface UserRepository extends JpaRepository<User, Long> {
 	Optional<User> findByUsername(String username);
 
-	Optional<User> findByUserUuid(UUID userUuid);
-
 	@Query("SELECT u FROM User u JOIN u.challengeIds c WHERE c = :challengeId")
     List<User> findUsersByChallengeId(@Param("challengeId") Long challengeId);
 
