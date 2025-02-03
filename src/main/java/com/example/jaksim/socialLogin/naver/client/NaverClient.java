@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.jaksim.socialLogin.config.FeignConfiguration;
-import com.example.jaksim.socialLogin.naver.dto.NaverInfo;
+// import com.example.jaksim.socialLogin.naver.dto.NaverInfo;
 import com.example.jaksim.socialLogin.naver.dto.NaverToken;
 
 @FeignClient(name = "naverClient", configuration = FeignConfiguration.class)
@@ -22,6 +22,6 @@ public interface NaverClient {
 		@RequestParam("state") String state
 		);
 
-	@PostMapping
-	NaverInfo getNaverInfo(URI baseUrl, @RequestHeader("Authorization") String accessToken);
+	// @PostMapping
+	// NaverInfo getNaverInfo(URI baseUrl, @RequestHeader("Authorization") String accessToken);
 }

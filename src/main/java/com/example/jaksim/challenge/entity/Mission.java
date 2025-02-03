@@ -8,7 +8,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Getter
@@ -42,7 +41,7 @@ public class Mission {
     @ElementCollection
     @CollectionTable(name = "mission_images", joinColumns = @JoinColumn(name = "mission_id"))
     @Column(name = "image_url")
-    private List<String> backgroundImages;
+    private String backgroundImages;
 
     @Column(name = "completion_deadline")
     private String completionDeadline;

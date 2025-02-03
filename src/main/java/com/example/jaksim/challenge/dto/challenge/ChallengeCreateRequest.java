@@ -1,4 +1,4 @@
-package com.example.jaksim.challenge.dto;
+package com.example.jaksim.challenge.dto.challenge;
 
 import java.util.List;
 

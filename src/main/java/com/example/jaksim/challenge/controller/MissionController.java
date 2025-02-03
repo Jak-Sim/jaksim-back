@@ -1,55 +1,89 @@
 package com.example.jaksim.challenge.controller;
 
-import com.example.jaksim.challenge.dto.mission.MissionCreateRequest;
-import com.example.jaksim.challenge.entity.Mission;
+import com.example.jaksim.challenge.dto.mission.MissionDto;
 import com.example.jaksim.challenge.service.MissionService;
+import com.example.jaksim.challenge.service.PointService;  // 포인트 서비스 추가
+import com.example.jaksim.common.ResponseDto;
+import io.swagger.v3.oas.annotations.Parameter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.sql.Date;
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/missions")
+@RequestMapping("/api/challenges/{challengeId}/missions")
 public class MissionController {
 
     private final MissionService missionService;
+    private final PointService pointService;  // 포인트 서비스 주입
 
-    public MissionController(MissionService missionService) {
+    @Autowired
+    public MissionController(MissionService missionService, PointService pointService) {
         this.missionService = missionService;
+        this.pointService = pointService;
     }
 
-    @PostMapping
-    public ResponseEntity<Mission> createMission(
-            @RequestBody MissionCreateRequest missionCreateRequest
-            // @RequestParam("challengeId") Long challengeId,
-            // @RequestParam("title") String title,
-            // @RequestParam("content") String content,
-            // @RequestParam("startDate") String startDate,
-            // @RequestParam("endDate") String endDate,
-            // @RequestParam("completionPoints") int completionPoints,
-            // @RequestParam(value = "backgroundImages", required = false) List<MultipartFile> backgroundImages,
-            // @RequestParam(value = "completionDeadline", required = false) String completionDeadline
-    ) throws IOException {
-        LocalDate endDate = missionCreateRequest.getEndDate();
-        MissionCreateRequest request = new MissionCreateRequest();
-        request.setChallengeId(missionCreateRequest.getChallengeId());
-        request.setTitle(missionCreateRequest. getTitle());
-        request.setContent(missionCreateRequest.getContent());
-        request.setStartDate(missionCreateRequest.getStartDate());
-        if (endDate.isEqual(null)) {
-            request.setEndDate(null);
-        }else{
-            request.setEndDate(endDate);
-        }
-        request.setCompletionPoints(missionCreateRequest.getCompletionPoints());
-        request.setBackgroundImages(missionCreateRequest.getBackgroundImages());
-        request.setCompletionDeadline(missionCreateRequest.getCompletionDeadline());
+    // 미션 목록 조회
+    @GetMapping
+    public ResponseEntity<ResponseDto> getMissions(
+        @PathVariable Long challengeId) {
+        List<MissionDto> missionDtos = missionService.getMissions(challengeId);
+        return new ResponseEntity<>(ResponseDto.setSuccess(200, "미션 목록 조회 성공", missionDtos), HttpStatus.OK);
+    }
 
-        Mission createdMission = missionService.createMission(request);
-        return ResponseEntity.ok(createdMission);
+    // 미션 상세 조회
+    @GetMapping("/{missionId}")
+    public ResponseEntity<ResponseDto> getMission(
+        @PathVariable Long challengeId,
+        @PathVariable Long missionId) {
+        MissionDto missionDto = missionService.getMission(challengeId, missionId);
+        return new ResponseEntity<>(ResponseDto.setSuccess(200, "미션 상세 조회 성공", missionDto), HttpStatus.OK);
+    }
+
+    // 미션 생성
+    @PostMapping
+    public ResponseEntity<ResponseDto> createMission(
+        @PathVariable Long challengeId,
+        @RequestBody MissionDto missionDto) {
+        MissionDto createdMission = missionService.createMission(challengeId, missionDto);
+        return new ResponseEntity<>(ResponseDto.setSuccess(200, "미션 생성 성공", createdMission), HttpStatus.CREATED);
+    }
+
+    // 미션 삭제
+    @DeleteMapping("/{missionId}")
+    public ResponseEntity<ResponseDto> deleteMission(
+        @PathVariable Long challengeId,
+        @PathVariable Long missionId) {
+        missionService.deleteMission(challengeId, missionId);
+        return new ResponseEntity<>(ResponseDto.setSuccess(200, "미션 삭제 성공"), HttpStatus.OK);
+    }
+
+    // 미션 완료시 포인트 적립
+    @PostMapping("/{missionId}/complete")
+    public ResponseEntity<ResponseDto> completeMission(
+        @PathVariable Long challengeId,
+        @PathVariable Long missionId,
+        @RequestParam String userUUID) {
+
+        // 포인트 적립
+        pointService.earnPoints(challengeId, userUUID, missionId);
+        
+        return new ResponseEntity<>(ResponseDto.setSuccess(200, "미션 완료 및 포인트 적립 완료"), HttpStatus.OK);
+    }
+
+    // 미션 포인트 사용
+    @PostMapping("/{missionId}/spend")
+    public ResponseEntity<ResponseDto> spendPoints(
+        @PathVariable Long challengeId,
+        @PathVariable Long missionId,
+        @RequestParam String userUUID,
+        @RequestParam int points) {
+
+        // 포인트 사용
+        pointService.spendPoints(challengeId, userUUID, points);
+        
+        return new ResponseEntity<>(ResponseDto.setSuccess(200, "포인트 사용 완료"), HttpStatus.OK);
     }
 }

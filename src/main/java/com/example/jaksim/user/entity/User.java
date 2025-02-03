@@ -35,6 +35,9 @@ public class User {
 	@Column(nullable = true, unique = true)
 	private String email;
 
+	@Column
+	private String social;
+
 	@CreationTimestamp
 	@Column(updatable = false)
 	private LocalDateTime createdAt;
@@ -59,6 +62,10 @@ public class User {
 
 	public void setUserId(Long userId) {
 		this.userId = userId;
+	}
+
+	public void setSocial(String social){
+		this.social = social;
 	}
 
 	public UUID getUserUuid() {

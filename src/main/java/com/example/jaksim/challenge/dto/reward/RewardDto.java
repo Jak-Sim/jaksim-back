@@ -18,7 +18,7 @@ public class RewardDto {
     public RewardDto() {}
 
     // 모든 필드를 포함하는 생성자
-    public RewardDto(Long rewardId, String name, String description, int requiredPoints, int remainingCount, List<String> rewardImages, boolean approvalRequired, LocalDate expirationDate) {
+    public RewardDto(Long rewardId, String name, String description, int requiredPoints, int remainingCount, String rewardImages, boolean approvalRequired, LocalDate expirationDate) {
         this.rewardId = rewardId;
         this.name = name;
         this.description = description;

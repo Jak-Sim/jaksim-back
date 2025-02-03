@@ -58,14 +58,14 @@ public class RewardService {
         Reward reward = rewardRepository.findById(rewardId)
                 .orElseThrow(() -> new RuntimeException("Reward not found"));
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("유저 없음"));
 
         if (reward.getRemainingQuantity() <= 0) {
-            throw new RuntimeException("The reward has no remaining quantity");
+            throw new RuntimeException("남은 수량 없음");
         }
 
         if (requestedPoints < reward.getRequiredPoints()) {
-            throw new RuntimeException("Not enough points to claim this reward");
+            throw new RuntimeException("포인트 부족");
         }
 
         RewardRequest rewardRequest = new RewardRequest();
