@@ -36,9 +36,17 @@ public class ChallengeController {
     public ResponseEntity<ResponseDto> getChallenges(
         @Parameter(description = "페이지 번호 (기본값: 1)", example = "1") 
         @RequestParam(defaultValue = "1") int page) {
-        List<ChallengeListResponse> challenges = challengeService.getChallenges(page);
+        List<ChallengeListResponse> challenges = challengeService.getChallenges(page);     
 
-        
+        return new ResponseEntity<>(ResponseDto.setSuccess(200, "챌린지 목록 조회 성공", challenges), HttpStatus.OK);
+    }
+
+    @Operation(summary = "챌린지 목록 조회", description = "페이지를 기준으로 챌린지 목록을 조회합니다.")
+    @GetMapping
+    public ResponseEntity<ResponseDto> getPersonalChallenges(
+        @Parameter(description = "페이지 번호 (기본값: 1)", example = "1") 
+        @RequestParam(defaultValue = "1") int page, @RequestParam String userUUID) {
+        List<ChallengeListResponse> challenges = challengeService.getPersonalChallenges(page,userUUID);     
 
         return new ResponseEntity<>(ResponseDto.setSuccess(200, "챌린지 목록 조회 성공", challenges), HttpStatus.OK);
     }

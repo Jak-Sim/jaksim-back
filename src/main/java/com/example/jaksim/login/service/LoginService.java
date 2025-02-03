@@ -47,6 +47,7 @@ public class LoginService {
 
 
 		user.setUserUuid(userUuid);
+		user.setSocial(signUpRequest.getSocial());
 		userRepository.save(user);
 
 		Optional<Login> member = loginRepository.findByMemberUniqueIdAndSocial(String.valueOf(login.getMemberUniqueId()), SocialType.KAKAO);
@@ -56,7 +57,7 @@ public class LoginService {
 		responseData.put("AT",tokenDto.getAccessToken());
 		responseData.put("RT",  tokenDto.getRefreshToken());
 		responseData.put("nickname", user.getUsername());
-		responseData.put("social", "KAKAO");
+		responseData.put("social", signUpRequest.getSocial());
 
 		return new ResponseEntity<>(new ResponseDto(209, "로그인에 성공하셨습니다.", responseData), HttpStatus.OK);
 

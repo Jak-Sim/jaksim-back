@@ -20,4 +20,6 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
 	List<Challenge> findByCreatorUuid(String creatorUserUuid);
 
 	Challenge findByParticipationCode(String participationCode);
+
+	Page<Challenge> findByChallengeIdIn(List<Long> challengeIds, Pageable pageable);
 }
