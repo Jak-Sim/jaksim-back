@@ -26,7 +26,7 @@ public class MissionService {
 
     // 챌린지에 속한 모든 미션 조회
     public List<MissionDto> getMissions(Long challengeId) {
-        List<Mission> missions = missionRepository.findByChallengeChallengeId(challengeId);
+        List<Mission> missions = missionRepository.findAllByChallengeChallengeId(challengeId);
         return missions.stream()
                 .map(mission -> {
                     MissionDto missionDto = new MissionDto();
@@ -41,7 +41,7 @@ public class MissionService {
 
     // 특정 미션 조회
     public MissionDto getMission(Long challengeId, Long missionId) {
-        Mission mission = missionRepository.findByIdAndChallengeChallengeId(missionId, challengeId)
+        Mission mission = missionRepository.findByMissionIdAndChallengeChallengeId(missionId, challengeId)
                 .orElseThrow(() -> new RuntimeException("Mission not found"));
         MissionDto missionDto = new MissionDto();
         missionDto.setMissionId(mission.getMissionId());
@@ -77,7 +77,7 @@ public class MissionService {
     // 미션 삭제
     @Transactional
     public void deleteMission(Long challengeId, Long missionId) {
-        Mission mission = missionRepository.findByIdAndChallengeChallengeId(missionId, challengeId)
+        Mission mission = missionRepository.findByMissionIdAndChallengeChallengeId(missionId, challengeId)
                 .orElseThrow(() -> new RuntimeException("Mission not found"));
         missionRepository.delete(mission);
     }

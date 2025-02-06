@@ -9,6 +9,8 @@ import com.example.jaksim.user.dto.UserUpdateDto;
 import com.example.jaksim.user.dto.UsernameCheckRequest;
 import com.example.jaksim.user.service.UserService;
 import com.example.jaksim.user.entity.User;
+
+import java.io.IOException;
 import java.util.UUID;
 
 
@@ -33,10 +35,10 @@ public class UserController {
 	}
 
 	@PutMapping("/user/update/{userUuid}")
-    public ResponseEntity<User> updateUser(
-            @PathVariable UUID userUuid,
-            @ModelAttribute UserUpdateDto userUpdateDto,
-            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage) {
+	public ResponseEntity<User> updateUser(
+			@PathVariable UUID userUuid,
+			@ModelAttribute UserUpdateDto userUpdateDto,
+			@RequestParam(value = "profileImage", required = false) MultipartFile profileImage) throws IOException {
         User updatedUser = userService.updateUser(userUuid, userUpdateDto, profileImage);
         return ResponseEntity.ok(updatedUser);
     }

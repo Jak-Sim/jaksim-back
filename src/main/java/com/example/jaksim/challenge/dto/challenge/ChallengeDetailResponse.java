@@ -2,7 +2,6 @@ package com.example.jaksim.challenge.dto.challenge;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import com.example.jaksim.challenge.dto.*;
 
 public class ChallengeDetailResponse {
 

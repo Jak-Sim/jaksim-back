@@ -1,6 +1,5 @@
 package com.example.jaksim.challenge.controller;
 
-import com.example.jaksim.challenge.dto.*;
 import com.example.jaksim.challenge.dto.challenge.ChallengeCreateRequest;
 import com.example.jaksim.challenge.dto.challenge.ChallengeDetailResponse;
 import com.example.jaksim.challenge.dto.challenge.ChallengeFindRequest;
@@ -41,8 +40,8 @@ public class ChallengeController {
         return new ResponseEntity<>(ResponseDto.setSuccess(200, "챌린지 목록 조회 성공", challenges), HttpStatus.OK);
     }
 
-    @Operation(summary = "챌린지 목록 조회", description = "페이지를 기준으로 챌린지 목록을 조회합니다.")
-    @GetMapping
+    @Operation(summary = "챌린지 목록 조회", description = "유저에 따라 페이지를 기준으로 챌린지 목록을 조회합니다.")
+    @GetMapping("/{userId}")
     public ResponseEntity<ResponseDto> getPersonalChallenges(
         @Parameter(description = "페이지 번호 (기본값: 1)", example = "1") 
         @RequestParam(defaultValue = "1") int page, @RequestParam String userUUID) {

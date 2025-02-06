@@ -2,12 +2,9 @@ package com.example.jaksim.socialLogin.kakao.service;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -20,14 +17,10 @@ import com.example.jaksim.common.ResponseDto;
 import com.example.jaksim.common.jwt.JwtUtil;
 import com.example.jaksim.common.jwt.RedisDao;
 import com.example.jaksim.common.jwt.TokenDto;
-import com.example.jaksim.login.dto.LoginRequest;
 import com.example.jaksim.login.entity.Login;
 import com.example.jaksim.login.entity.SocialType;
 import com.example.jaksim.login.repository.LoginRepository;
 import com.example.jaksim.socialLogin.kakao.client.KakaoClient;
-import com.example.jaksim.socialLogin.kakao.dto.KakaoAccount;
-import com.example.jaksim.socialLogin.kakao.dto.KakaoResponseDto;
-import com.example.jaksim.socialLogin.kakao.dto.KakaoToken;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;

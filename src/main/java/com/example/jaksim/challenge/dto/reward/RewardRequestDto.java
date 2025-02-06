@@ -23,7 +23,10 @@ public class RewardRequestDto {
     }
 
     public RewardRequestDto(RewardRequest rewardRequest) {
-        //TODO Auto-generated constructor stub
+        this.requestId = rewardRequest.getRequestId();
+        this.userId = rewardRequest.getUser().getUserId();
+        this.rewardId = rewardRequest.getReward().getRewardId();
+        this.rejectionReason = rewardRequest.getRejectionReason();
     }
 
     // Getter, Setter

@@ -38,8 +38,6 @@ public class Mission {
     @Column(name = "completion_points", nullable = false)
     private int completionPoints;
 
-    @ElementCollection
-    @CollectionTable(name = "mission_images", joinColumns = @JoinColumn(name = "mission_id"))
     @Column(name = "image_url")
     private String backgroundImages;
 

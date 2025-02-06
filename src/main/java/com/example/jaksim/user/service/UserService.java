@@ -10,27 +10,28 @@ import com.example.jaksim.user.repository.UserRepository;
 import com.example.jaksim.user.entity.User;
 
 import java.util.UUID;
+import java.io.IOException;
 import java.util.Optional;
 
 
 @Service
 public class UserService {
 
-	private final UserRepository userRepository;
-	private final S3Service s3Service;
+    private final UserRepository userRepository;
+    private final S3Service s3Service;
 
-	@Autowired
-	public UserService(UserRepository userRepository, S3Service s3Service) {
-		this.userRepository = userRepository;
-		this.s3Service = s3Service;
-	}
+    @Autowired
+    public UserService(UserRepository userRepository, S3Service s3Service) {
+        this.userRepository = userRepository;
+        this.s3Service = s3Service;
+    }
 
-	
-	public boolean isUsernameTaken(String username) {
-		return userRepository.findByUsername(username).isPresent();
-	}
+    
+    public boolean isUsernameTaken(String username) {
+        return userRepository.findByUsername(username).isPresent();
+    }
 
-	public User updateUser(UUID userUuid, UserUpdateDto userUpdateDto, MultipartFile profileImage) {
+    public User updateUser(UUID userUuid, UserUpdateDto userUpdateDto, MultipartFile profileImage) throws IOException {
         Optional<User> optionalUser = userRepository.findByUserUuid(userUuid);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
@@ -38,7 +39,7 @@ public class UserService {
             user.setEmail(userUpdateDto.getEmail());
 
             if (profileImage != null) {
-                String imageUrl = s3Service.uploadFile(profileImage);
+                String imageUrl = s3Service.upload(profileImage);
             }
 
             return userRepository.save(user);

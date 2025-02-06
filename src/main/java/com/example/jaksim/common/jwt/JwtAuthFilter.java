@@ -1,13 +1,15 @@
 package com.example.jaksim.common.jwt;
 
-import static com.example.jaksim.common.jwt.JwtUtil.*;
+// import com.example.jaksim.common.jwt.*;
 
 import java.io.IOException;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 
+// import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import static com.example.jaksim.common.jwt.JwtUtil.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;

@@ -11,8 +11,6 @@ import jakarta.persistence.Id;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import org.hibernate.annotations.GenericGenerator;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,9 +21,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Login {
 
-	// memberId는 UUID를 사용하지 않으므로 삭제하거나 필요에 따라 유지하세요.
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY) // 주의: AUTO_INCREMENT 방식으로 사용할 경우 Long 타입 필요
+	@GeneratedValue(strategy = GenerationType.IDENTITY) 
 	private Long memberId;
 
 	@Column(nullable = false, unique = true)

@@ -40,7 +40,7 @@ public class RewardRequest {
     private String rejectionReason;  // 거부 이유
 
     public void setIsApproved(boolean b) {
-        // TODO Auto-generated method stub
+
         throw new UnsupportedOperationException("Unimplemented method 'setIsApproved'");
     }
 }

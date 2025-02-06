@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Getter
 @Setter
@@ -16,5 +15,5 @@ public class MissionDto {
     private LocalDate startDate;
     private LocalDate endDate;
     private String backgroundImages;
-    private int completionDeadline;
+    private String completionDeadline;
 }
