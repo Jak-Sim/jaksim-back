@@ -87,6 +87,15 @@ java {
     }
 }
 
+bootJar {
+    enabled = true
+    archiveFileName = 'Jak-Sim.jar'  // jar 파일명 지정
+}
+
+jar {
+    enabled = false  // plain jar 생성 비활성화
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor

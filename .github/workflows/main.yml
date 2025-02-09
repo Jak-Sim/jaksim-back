@@ -25,7 +25,9 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew build -x test
+        run: |
+          ./gradlew clean
+          ./gradlew bootJar -x test
 
       - name: Generate deployment package
         run: |
@@ -62,7 +64,7 @@ jobs:
             echo "Deployment completed"
             echo "Checking application status..."
             sleep 5
-            if pgrep -f "jaksim.*jar" > /dev/null; then
+            if pgrep -f "Jak-Sim.*jar" > /dev/null; then
               echo "Application is running"
             else
               echo "Application failed to start"
