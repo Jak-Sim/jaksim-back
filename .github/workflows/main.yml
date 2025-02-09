@@ -33,7 +33,11 @@ jobs:
           cp build/libs/*.jar deploy/
           cp scripts/*.sh deploy/
           cp Procfile deploy/
+          echo "Copied files to deploy directory:"
+          ls -la deploy/
           cd deploy && zip -r deploy.zip .
+          echo "Created deployment package:"
+          ls -la deploy.zip
 
       - name: Deploy to EC2
         uses: appleboy/scp-action@master
@@ -53,4 +57,15 @@ jobs:
           script: |
             cd ~/app/step
             unzip -o deploy/deploy.zip -d ./
+            chmod +x deploy.sh
             sh deploy.sh
+            echo "Deployment completed"
+            echo "Checking application status..."
+            sleep 5
+            if pgrep -f "jaksim.*jar" > /dev/null; then
+              echo "Application is running"
+            else
+              echo "Application failed to start"
+              tail -n 50 nohup.out
+              exit 1
+            fi

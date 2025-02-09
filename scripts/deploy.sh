@@ -1,7 +1,7 @@
 #!/bin/bash
 
 REPOSITORY=/home/ec2-user/app/step
-PROJECT_NAME=jaksim
+PROJECT_NAME=Jak-Sim
 
 cd $REPOSITORY
 
