@@ -24,18 +24,22 @@ public class Swagger2Config {
                 .description("Jaksim 프로젝트의 API 문서입니다.")
                 .contact(new Contact()
                         .name("Jaksim Team")
-                        .email("your.email@example.com")
-                        .url("https://your-website.com"))
+                        .email("periq23@gmail.com")
+                        .url("https://jaksim.site"))
                 .license(new License()
                         .name("Apache 2.0")
                         .url("http://www.apache.org/licenses/LICENSE-2.0.html"));
 
         Server localServer = new Server()
                 .url("http://localhost:8080")
-                .description("Local Server");
+                .description("Dev Server");
+
+        Server devServer = new Server()
+                .url("http://ec2-43-201-22-201.ap-northeast-2.compute.amazonaws.com:8080")
+                .description("Dev Server");
 
         Server prodServer = new Server()
-                .url("http://your-production-url.com")
+                .url("http://jaksim.site")
                 .description("Production Server");
 
         SecurityScheme bearerAuth = new SecurityScheme()
