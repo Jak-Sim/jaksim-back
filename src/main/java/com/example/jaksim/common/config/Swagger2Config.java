@@ -31,15 +31,15 @@ public class Swagger2Config {
                         .url("http://www.apache.org/licenses/LICENSE-2.0.html"));
 
         Server localServer = new Server()
-                .url("http://localhost:8080")
+                .url("http://localhost:8080/")
                 .description("Dev Server");
 
         Server devServer = new Server()
-                .url("http://ec2-43-201-22-201.ap-northeast-2.compute.amazonaws.com:8080")
+                .url("http://ec2-43-201-22-201.ap-northeast-2.compute.amazonaws.com/")
                 .description("Dev Server");
 
         Server prodServer = new Server()
-                .url("http://jaksim.site")
+                .url("http://jaksim.site/")
                 .description("Production Server");
 
         SecurityScheme bearerAuth = new SecurityScheme()
@@ -66,7 +66,7 @@ public class Swagger2Config {
 
         return new OpenAPI()
                 .info(info)
-                .servers(Arrays.asList(localServer, prodServer))
+                .servers(Arrays.asList(localServer, devServer, prodServer))
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth", bearerAuth)
                         .addSecuritySchemes("AT", accessToken)
