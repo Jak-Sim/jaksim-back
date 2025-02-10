@@ -87,6 +87,15 @@ java {
     }
 }
 
+bootJar {
+    enabled = true
+    archiveFileName = 'Jak-Sim.jar'  // jar 파일명 지정
+}
+
+jar {
+    enabled = false  // plain jar 생성 비활성화
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
@@ -115,7 +124,7 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
 
     // Swagger
-    implementation 'org.springdoc:springdoc-openapi-ui:1.6.8'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
