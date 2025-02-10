@@ -137,8 +137,8 @@ public class JwtUtil {
 			.getSubject(); 
 	}
 	
-	public Authentication createAuthentication(String memberUniqueId) {
-		UserDetails userDetails = userDetailsServiceImplement.loadUserByUsername(memberUniqueId);
+	public Authentication createAuthentication(String userUUID) {
+		UserDetails userDetails = userDetailsServiceImplement.loadUserByUsername(userUUID);
 		return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 	}
 	public Boolean refreshTokenValidation(String token) {

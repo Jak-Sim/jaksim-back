@@ -16,5 +16,7 @@ public interface LoginRepository extends JpaRepository<Login, Long> {
 
 	Optional<Object> findByMemberUniqueId(String memberUniqueId);
 
+	Optional<Object> findByUserUuid(UUID memberUniqueId);
+
 	Optional<Login> findByTokenVersion(UUID tokenVersion);
 }
