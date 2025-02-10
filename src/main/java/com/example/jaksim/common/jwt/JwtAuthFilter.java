@@ -51,7 +51,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 					jwtExceptionHandler(response, "410 : This token already Logged Out ", 410);
 					return;
 				}
-				setAuthentication(jwtUtil.getMemberInfoFromToken(access_token));
+				setAuthentication(jwtUtil.getUserUuidFromToken(access_token));
 			} else {
 				jwtExceptionHandler(response, "403 : Wrong token", HttpStatus.FORBIDDEN.value());
 				return;
@@ -73,9 +73,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		}
 	}
 
-	public void setAuthentication(String username) {
+	public void setAuthentication(String userUuid) {
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
-		Authentication authentication = jwtUtil.createAuthentication(username);
+		Authentication authentication = jwtUtil.createAuthentication(userUuid);
 		context.setAuthentication(authentication);
 		SecurityContextHolder.setContext(context);
 	}

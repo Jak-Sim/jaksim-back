@@ -128,6 +128,15 @@ public class JwtUtil {
 		return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
 	}
 
+	public String getUserUuidFromToken(String token) {
+		return Jwts.parserBuilder()
+			.setSigningKey(key)
+			.build()
+			.parseClaimsJws(token)
+			.getBody()
+			.getSubject(); 
+	}
+	
 	public Authentication createAuthentication(String memberUniqueId) {
 		UserDetails userDetails = userDetailsServiceImplement.loadUserByUsername(memberUniqueId);
 		return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
