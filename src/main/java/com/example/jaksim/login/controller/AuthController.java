@@ -34,14 +34,5 @@ public class AuthController {
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
-	}
-
-	// @PostMapping("")
-	// public ResponseEntity<ResponseEntity>
-
-	@GetMapping("/judy")
-	public String healthCheck{
-		return "cute Judy"
-	}
-
+	};
 }
