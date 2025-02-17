@@ -45,18 +45,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		String access_token = jwtUtil.resolveToken(request, ACCESS_KEY);
 		String refresh_token = jwtUtil.resolveToken(request, REFRESH_KEY);
 
-		if(access_token != null) {
-			if(jwtUtil.validateToken(access_token)) {
-				if (redisDao.getValues(request.getHeader("AT").substring(7))!= null) {
-					jwtExceptionHandler(response, "410 : This token already Logged Out ", 410);
-					return;
-				}
+		if (access_token != null) {
+			if (jwtUtil.validateToken(access_token)) {
 				setAuthentication(jwtUtil.getUserUuidFromToken(access_token));
 			} else {
-				jwtExceptionHandler(response, "403 : Wrong token", HttpStatus.FORBIDDEN.value());
+				jwtExceptionHandler(response, "403 : Invalid Token", HttpStatus.FORBIDDEN.value());
 				return;
 			}
 		}
+		
 		filterChain.doFilter(request, response);
 	}
 
