@@ -47,7 +47,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
 		if(access_token != null) {
 			if(jwtUtil.validateToken(access_token)) {
-				if (redisDao.getValues(request.getHeader("Access_key").substring(7))!= null) {
+				if (redisDao.getValues(request.getHeader("AT").substring(7))!= null) {
 					jwtExceptionHandler(response, "410 : This token already Logged Out ", 410);
 					return;
 				}

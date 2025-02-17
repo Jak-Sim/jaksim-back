@@ -38,4 +38,10 @@ public class AuthController {
 
 	// @PostMapping("")
 	// public ResponseEntity<ResponseEntity>
+
+	@GetMapping("/judy")
+	public String healthCheck{
+		return "cute Judy"
+	}
+
 }

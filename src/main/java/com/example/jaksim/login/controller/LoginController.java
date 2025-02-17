@@ -17,6 +17,12 @@ public class LoginController {
 		this.loginService = loginService;
 	}
 
+	
+	@GetMapping("/judy")
+	public String healthCheck(){
+		return "cute Judy";
+	}
+
 	@PostMapping("/sign-up")
 	public ResponseEntity<ResponseDto> signUp(@RequestBody SignUpRequest signUpRequest) {
 			return loginService.signUp(signUpRequest);
