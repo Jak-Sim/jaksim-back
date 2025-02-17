@@ -33,7 +33,7 @@ public class JwtUtil {
 	@Value("${jwt.secret.key}")
 	private String secretKey;
 
-	public static final String ACCESS_KEY = "AT";
+	public static final String ACCESS_KEY = "At";
 	public static final String REFRESH_KEY = "RT";
 
 	// public static final String AUTHORIZATION_HEADER = "Authorization";
@@ -99,7 +99,7 @@ public class JwtUtil {
 	}
 
 	public String resolveToken(HttpServletRequest httpServletRequest, String token) {
-		String tokenName = token.equals("ACCESS_KEY") ? ACCESS_KEY : REFRESH_KEY;
+		String tokenName = token.equals(ACCESS_KEY) ? ACCESS_KEY : REFRESH_KEY;
 		String bearerToken = httpServletRequest.getHeader(tokenName);
 		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
 			return bearerToken.substring(7);
