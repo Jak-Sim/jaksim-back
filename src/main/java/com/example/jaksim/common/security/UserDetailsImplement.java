@@ -13,10 +13,10 @@ import com.example.jaksim.login.entity.Login;
 public class UserDetailsImplement implements UserDetails {
 
 	private final Login login;
-	private final String memberUniqueId;
-	public UserDetailsImplement(Login login, String memberUniqueId) {
+	private final String userUuid;
+	public UserDetailsImplement(Login login, String userUuid) {
 		this.login = login;
-		this.memberUniqueId = memberUniqueId;
+		this.userUuid = userUuid;
 	}
 	public Login getMember(){
 		return login;
@@ -43,7 +43,7 @@ public class UserDetailsImplement implements UserDetails {
 
 	@Override
 	public String getUsername() {
-		return this.memberUniqueId;
+		return this.userUuid;
 	}
 
 	@Override
