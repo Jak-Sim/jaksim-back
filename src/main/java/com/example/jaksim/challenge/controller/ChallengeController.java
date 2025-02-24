@@ -66,6 +66,7 @@ public class ChallengeController {
         @RequestBody ChallengeCreateRequest request,
         @Parameter(description = "JWT 인증 사용자 UUID", hidden = true) 
         @AuthenticationPrincipal String userUuid) {
+        System.out.println(userUuid);
         ResponseDto response = challengeService.createChallenge(request, userUuid);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }

@@ -47,8 +47,8 @@ public class WebSecurityConfig {
                                 "/sign-up",
                                 "/challenge"
                         ).permitAll()
-                        .requestMatchers(request ->
-                                request.getRemoteAddr().equals("127.0.0.1")).permitAll()
+                        // .requestMatchers(request ->
+                                // request.getRemoteAddr().equals("127.0.0.1")).permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
