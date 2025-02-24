@@ -1,6 +1,7 @@
 package com.example.jaksim.common.jwt;
 
 import java.security.Key;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.UUID;
@@ -132,18 +133,25 @@ public class JwtUtil {
 		return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
 	}
 
+	
 	public String getUserUuidFromToken(String token) {
-		return Jwts.parserBuilder()
+		 String userUuid = Jwts.parserBuilder()
 			.setSigningKey(key)
 			.build()
 			.parseClaimsJws(token)
 			.getBody()
 			.getSubject(); 
+		
+		System.out.println("userUuid");
+		System.out.println(userUuid);
+
+
+		return userUuid;
 	}
 	
 	public Authentication createAuthentication(String userUUID) {
 		UserDetails userDetails = userDetailsServiceImplement.loadUserByUsername(userUUID);
-		return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+		return new UsernamePasswordAuthenticationToken(userDetails, null, new ArrayList<>());
 	}
 	public Boolean refreshTokenValidation(String token) {
 		if (!validateToken(token)) return false;
