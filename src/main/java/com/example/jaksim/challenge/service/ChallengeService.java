@@ -105,7 +105,7 @@ public class ChallengeService {
 		challenge.setPublic(request.isPublic());
 		challenge.setMaxParticipants(request.getMaxParticipants());
 		challenge.setTags(request.getTags());
-		challenge.setCreatorUuid(String.valueOf(UUID.fromString(userUuid))); // JWT에서 받은 userUuid 사용
+		challenge.setCreatorUuid(userUuid); // JWT에서 받은 userUuid 사용
 		challenge.setParticipationCode(generateParticipationCode()); // Generate participation code
 
 		Challenge savedChallenge = challengeRepository.save(challenge);

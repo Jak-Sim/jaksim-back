@@ -6,6 +6,7 @@ public class ChallengeCreateRequest {
 	private String name;
 	private String backgroundImage;
 	private boolean isPublic;
+	private int minParticipants;
 	private int maxParticipants;
 	private List<String> tags;
 
@@ -40,6 +41,15 @@ public class ChallengeCreateRequest {
 	public void setMaxParticipants(int maxParticipants) {
 		this.maxParticipants = maxParticipants;
 	}
+
+	public int getMinParticipants() {
+		return minParticipants;
+	}
+
+	public void setMinParticipants(int maxParticipants) {
+		this.minParticipants = maxParticipants;
+	}
+
 
 	public List<String> getTags() {
 		return tags;
