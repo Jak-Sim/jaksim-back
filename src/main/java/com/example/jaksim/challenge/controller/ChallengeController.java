@@ -6,12 +6,15 @@ import com.example.jaksim.challenge.dto.challenge.ChallengeFindRequest;
 import com.example.jaksim.challenge.dto.challenge.ChallengeListResponse;
 import com.example.jaksim.challenge.service.ChallengeService;
 import com.example.jaksim.common.ResponseDto;
+import com.example.jaksim.common.security.UserDetailsImplement;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -65,7 +68,8 @@ public class ChallengeController {
         @Parameter(description = "챌린지 생성 요청 데이터", required = true) 
         @RequestBody ChallengeCreateRequest request,
         @Parameter(description = "JWT 인증 사용자 UUID", hidden = true) 
-        @AuthenticationPrincipal String userUuid) {
+        @AuthenticationPrincipal UserDetails userDetails) {
+        String userUuid = ((UserDetailsImplement) userDetails).getUsername(); 
         System.out.println(userUuid);
         ResponseDto response = challengeService.createChallenge(request, userUuid);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
