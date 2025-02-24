@@ -44,9 +44,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		
 		String access_token = jwtUtil.resolveToken(request, ACCESS_KEY);
 		String refresh_token = jwtUtil.resolveToken(request, REFRESH_KEY);
-
+		System.out.println("comminghere?0");
 		if (access_token != null) {
+			System.out.println("comminghere?1");
 			if (jwtUtil.validateToken(access_token)) {
+				System.out.println("comminghere?2");
 				setAuthentication(jwtUtil.getUserUuidFromToken(access_token));
 			} else {
 				jwtExceptionHandler(response, "403 : Invalid Token", HttpStatus.FORBIDDEN.value());

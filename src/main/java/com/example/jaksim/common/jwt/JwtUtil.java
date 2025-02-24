@@ -99,8 +99,12 @@ public class JwtUtil {
 	}
 
 	public String resolveToken(HttpServletRequest httpServletRequest, String token) {
+		System.out.println("comminghere?5");
 		String tokenName = token.equals(ACCESS_KEY) ? ACCESS_KEY : REFRESH_KEY;
+		System.out.println("comminghere?6");
 		String bearerToken = httpServletRequest.getHeader(tokenName);
+		System.out.println("comminghere?");
+		System.out.println(bearerToken);
 		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
 			return bearerToken.substring(7);
 		}
