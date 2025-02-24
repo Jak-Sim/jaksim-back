@@ -34,6 +34,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(jakarta.servlet.http.HttpServletRequest request, jakarta.servlet.http.HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 		String requestURI = request.getRequestURI();
+		
 		System.out.println("requestURI is " + requestURI);
 		if (requestURI.startsWith("/swagger-ui") || requestURI.startsWith("/v3/api-docs") || requestURI.startsWith("/swagger-ui.html")) {
 			filterChain.doFilter(request, response);
@@ -75,10 +76,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 	public void setAuthentication(String userUuid) {
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
 		Authentication authentication = jwtUtil.createAuthentication(userUuid);
+	
+		System.out.println("authentication: " + authentication); 
+		System.out.println("authentication principal: " + authentication.getPrincipal());
+	
 		context.setAuthentication(authentication);
 		SecurityContextHolder.setContext(context);
 	}
-
-
+	
 
 }

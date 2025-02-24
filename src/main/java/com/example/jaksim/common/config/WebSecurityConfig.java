@@ -47,6 +47,7 @@ public class WebSecurityConfig {
                                 "/sign-up",
                                 "/challenge"
                         ).permitAll()
+                        .requestMatchers("/challenge/create").authenticated() 
                         // .requestMatchers(request ->
                                 // request.getRemoteAddr().equals("127.0.0.1")).permitAll()
                         .anyRequest().authenticated()
