@@ -34,18 +34,21 @@ public class ChallengeService {
 	}
 
 	// 챌린지 목록 조회
-	public List<ChallengeListResponse> getChallenges(int page) {
+	public ChallengeListResponse getChallenges(int page) {
 		Pageable pageable = PageRequest.of(page, 10); // 페이지당 10개 챌린지
 		Page<Challenge> challengePage = challengeRepository.findAll(pageable);
 
-		return challengePage.getContent().stream()
-			.map(challenge -> new ChallengeListResponse(
-				challenge.getChallengeId(),
-				challenge.getName(),
-				challenge.getBackgroundImage(),
-				challenge.getCreatorUuid(),
-				challenge.getCreatedAt()))
-			.collect(Collectors.toList());
+		List<ChallengeListResponse.ChallengeSummary> summaries = challengePage.getContent().stream()
+				.map(challenge -> new ChallengeListResponse.ChallengeSummary(
+						challenge.getChallengeId(),
+						challenge.getName(),
+						challenge.getBackgroundImage(),
+						challenge.isPublic(),
+						challenge.getCreatorUuid(),
+						challenge.getCreatedAt()))
+				.collect(Collectors.toList());
+
+		return new ChallengeListResponse(summaries);
 	}
 
 	// 챌린지 개인별 조회

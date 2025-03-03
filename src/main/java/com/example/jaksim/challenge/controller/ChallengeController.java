@@ -36,9 +36,9 @@ public class ChallengeController {
     @Operation(summary = "챌린지 목록 조회", description = "페이지를 기준으로 챌린지 목록을 조회합니다.")
     @GetMapping
     public ResponseEntity<ResponseDto> getChallenges(
-        @Parameter(description = "페이지 번호 (기본값: 1)", example = "1") 
-        @RequestParam(defaultValue = "1") int page) {
-        List<ChallengeListResponse> challenges = challengeService.getChallenges(page);     
+            @Parameter(description = "페이지 번호 (기본값: 0)", example = "0")
+            @RequestParam(defaultValue = "0") int page) {
+        ChallengeListResponse challenges = challengeService.getChallenges(page);
 
         return new ResponseEntity<>(ResponseDto.setSuccess(200, "챌린지 목록 조회 성공", challenges), HttpStatus.OK);
     }
@@ -65,12 +65,16 @@ public class ChallengeController {
     @Operation(summary = "챌린지 생성", description = "새로운 챌린지를 생성합니다.")
     @PostMapping("/create")
     public ResponseEntity<ResponseDto> createChallenge(
-        @Parameter(description = "챌린지 생성 요청 데이터", required = true) 
-        @RequestBody ChallengeCreateRequest request,
-        @Parameter(description = "JWT 인증 사용자 UUID", hidden = true) 
-        @AuthenticationPrincipal UserDetails userDetails) {
-        String userUuid = ((UserDetailsImplement) userDetails).getUsername(); 
-        System.out.println(userUuid);
+            @Parameter(description = "챌린지 생성 요청 데이터", required = true)
+            @RequestBody ChallengeCreateRequest request,
+            @RequestHeader(value = "user-uuid", required = false) String userUuid) {
+
+        // 테스트용 기본값 설정 (실제로는 랜덤 UUID 사용)
+        if (userUuid == null || userUuid.isEmpty()) {
+            userUuid = UUID.randomUUID().toString(); // 테스트용 임시 UUID
+            System.out.println("테스트용 UUID 생성: " + userUuid);
+        }
+
         ResponseDto response = challengeService.createChallenge(request, userUuid);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
