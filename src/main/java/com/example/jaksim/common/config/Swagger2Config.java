@@ -30,47 +30,34 @@ public class Swagger2Config {
                         .name("Apache 2.0")
                         .url("http://www.apache.org/licenses/LICENSE-2.0.html"));
 
-        Server localServer = new Server()
-                .url("http://localhost:8080/")
-                .description("Dev Server");
-
         Server devServer = new Server()
                 .url("http://ec2-43-201-22-201.ap-northeast-2.compute.amazonaws.com/")
                 .description("Dev Server");
+
+        Server localServer = new Server()
+                .url("http://localhost:8080")
+                .description("Local Server");
 
         Server prodServer = new Server()
                 .url("http://jaksim.site/")
                 .description("Production Server");
 
-        SecurityScheme bearerAuth = new SecurityScheme()
+        // AT만 사용하도록 설정
+        SecurityScheme accessToken = new SecurityScheme()
                 .type(SecurityScheme.Type.HTTP)
                 .scheme("bearer")
                 .bearerFormat("JWT")
                 .in(SecurityScheme.In.HEADER)
                 .name("Authorization");
 
-        SecurityScheme accessToken = new SecurityScheme()
-                .type(SecurityScheme.Type.APIKEY)
-                .in(SecurityScheme.In.HEADER)
-                .name("AT");
-
-        SecurityScheme refreshToken = new SecurityScheme()
-                .type(SecurityScheme.Type.APIKEY)
-                .in(SecurityScheme.In.HEADER)
-                .name("RT");
-
         SecurityRequirement securityRequirement = new SecurityRequirement()
-                .addList("bearerAuth")
-                .addList("AT")
-                .addList("RT");
+                .addList("AT");
 
         return new OpenAPI()
                 .info(info)
-                .servers(Arrays.asList(localServer, devServer, prodServer))
+                .servers(Arrays.asList(devServer, localServer, prodServer))
                 .components(new Components()
-                        .addSecuritySchemes("bearerAuth", bearerAuth)
-                        .addSecuritySchemes("AT", accessToken)
-                        .addSecuritySchemes("RT", refreshToken))
+                        .addSecuritySchemes("AT", accessToken))
                 .addSecurityItem(securityRequirement);
     }
 }

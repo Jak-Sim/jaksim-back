@@ -1,12 +1,8 @@
 package com.example.jaksim.challenge.controller;
 
-import com.example.jaksim.challenge.dto.challenge.ChallengeCreateRequest;
-import com.example.jaksim.challenge.dto.challenge.ChallengeDetailResponse;
-import com.example.jaksim.challenge.dto.challenge.ChallengeFindRequest;
-import com.example.jaksim.challenge.dto.challenge.ChallengeListResponse;
+import com.example.jaksim.challenge.dto.challenge.*;
 import com.example.jaksim.challenge.service.ChallengeService;
 import com.example.jaksim.common.ResponseDto;
-import com.example.jaksim.common.security.UserDetailsImplement;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,7 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -39,18 +35,17 @@ public class ChallengeController {
             @Parameter(description = "페이지 번호 (기본값: 0)", example = "0")
             @RequestParam(defaultValue = "0") int page) {
         ChallengeListResponse challenges = challengeService.getChallenges(page);
-
         return new ResponseEntity<>(ResponseDto.setSuccess(200, "챌린지 목록 조회 성공", challenges), HttpStatus.OK);
     }
 
     @Operation(summary = "챌린지 목록 조회", description = "유저에 따라 페이지를 기준으로 챌린지 목록을 조회합니다.")
-    @GetMapping("/{userId}")
+    @GetMapping("/user/{userId}")
     public ResponseEntity<ResponseDto> getPersonalChallenges(
-        @Parameter(description = "페이지 번호 (기본값: 1)", example = "1") 
-        @RequestParam(defaultValue = "1") int page, @RequestParam String userUUID) {
-        List<ChallengeListResponse> challenges = challengeService.getPersonalChallenges(page,userUUID);     
-
-        return new ResponseEntity<>(ResponseDto.setSuccess(200, "챌린지 목록 조회 성공", challenges), HttpStatus.OK);
+            @Parameter(description = "페이지 번호 (기본값: 0)", example = "0")
+            @RequestParam(defaultValue = "0") int page,
+            @PathVariable String userId) {
+        Map<String, Object> responseData = challengeService.getPersonalChallenges(page, userId);
+        return new ResponseEntity<>(ResponseDto.setSuccess(200, "챌린지 목록 조회 성공", responseData), HttpStatus.OK);
     }
 
     @Operation(summary = "챌린지 상세 조회", description = "챌린지 ID를 통해 상세 정보를 조회합니다.")
@@ -67,7 +62,9 @@ public class ChallengeController {
     public ResponseEntity<ResponseDto> createChallenge(
             @Parameter(description = "챌린지 생성 요청 데이터", required = true)
             @RequestBody ChallengeCreateRequest request,
-            @RequestHeader(value = "user-uuid", required = false) String userUuid) {
+            @Parameter(description = "User-uuid", hidden = true)
+            @AuthenticationPrincipal UserDetails userDetails) {
+        String userUuid = userDetails.getUsername();
         ResponseDto response = challengeService.createChallenge(request, userUuid);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -81,14 +78,13 @@ public class ChallengeController {
         return new ResponseEntity<>(ResponseDto.setSuccess(200, "챌린지 찾기 성공", challengeDetail), HttpStatus.OK);
     }
 
-    @Operation(summary = "챌린지 코드 참여", description = "참여 코드를 통해 챌린지에 참가합니다..")
+    @Operation(summary = "챌린지 코드 참여", description = "참여 코드를 통해 챌린지에 참가합니다.")
     @PostMapping("/join")
     public ResponseEntity<ResponseDto> challengeJoinByCode(
-        @RequestBody Long challengeId,
-        @RequestHeader("user-uuid") UUID userUuid
+            @RequestBody ChallengeJoinRequest request,
+            @RequestHeader("user-uuid") UUID userUuid
     ){
-        ChallengeDetailResponse challengeDetail = challengeService.getChallengeJoin(challengeId, userUuid);
+        ChallengeDetailResponse challengeDetail = challengeService.getChallengeJoin(request.getChallengeId(), userUuid);
         return new ResponseEntity<>(ResponseDto.setSuccess(200, "챌린지 참여 성공", challengeDetail), HttpStatus.OK);
     }
-
 }

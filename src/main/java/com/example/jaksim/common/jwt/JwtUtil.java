@@ -16,8 +16,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-
-import com.example.jaksim.common.security.RefreshTokenRepository;
 import com.example.jaksim.common.security.UserDetailsServiceImplement;
 
 import io.jsonwebtoken.*;
@@ -34,20 +32,15 @@ public class JwtUtil {
 	@Value("${jwt.secret.key}")
 	private String secretKey;
 
-	public static final String ACCESS_KEY = "At";
+	public static final String ACCESS_KEY = "Authorization";
 	public static final String REFRESH_KEY = "RT";
-
 	// public static final String AUTHORIZATION_HEADER = "Authorization";
 	public static final String BEARER_PREFIX = "Bearer ";
-
-
 	private static final long ACCESS_TIME =  24 * 60 * 60 * 1000L;
-
 	private static final long REFRESH_TIME = 14 * 24 * 60 * 60 * 1000L;
 
 
 	private final UserDetailsServiceImplement userDetailsServiceImplement;
-	private final RefreshTokenRepository refreshTokenRepository;
 	private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 	private Key key;
 	private RedisDao redisDao;

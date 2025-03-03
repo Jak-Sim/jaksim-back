@@ -47,12 +47,13 @@ public class ChallengeListResponse {
 		private boolean isPublic;
 		private String creatorUuid;
 		private LocalDateTime createdAt;
+		private int remainingPoint;
+		private int activeMissionsCount;
+		private int participantsCount;
 
-		// 기본 생성자 추가
 		public ChallengeSummary() {
 		}
 
-		// 전체 필드를 초기화하는 생성자 추가
 		public ChallengeSummary(Long challengeId, String name, String backgroundImage,
 								boolean isPublic, String creatorUuid, LocalDateTime createdAt) {
 			this.challengeId = challengeId;
@@ -61,6 +62,20 @@ public class ChallengeListResponse {
 			this.isPublic = isPublic;
 			this.creatorUuid = creatorUuid;
 			this.createdAt = createdAt;
+		}
+
+		public ChallengeSummary(Long challengeId, String name, String backgroundImage,
+								boolean isPublic, String creatorUuid, LocalDateTime createdAt,
+								int remainingPoint, int activeMissionsCount, int participantsCount) {
+			this.challengeId = challengeId;
+			this.name = name;
+			this.backgroundImage = backgroundImage;
+			this.isPublic = isPublic;
+			this.creatorUuid = creatorUuid;
+			this.createdAt = createdAt;
+			this.remainingPoint = remainingPoint;
+			this.activeMissionsCount = activeMissionsCount;
+			this.participantsCount = participantsCount;
 		}
 
 		// Getters and Setters
@@ -110,6 +125,30 @@ public class ChallengeListResponse {
 
 		public void setCreatedAt(LocalDateTime createdAt) {
 			this.createdAt = createdAt;
+		}
+
+		public int getRemainingPoint() {
+			return remainingPoint;
+		}
+
+		public void setRemainingPoint(int remainingPoint) {
+			this.remainingPoint = remainingPoint;
+		}
+
+		public int getActiveMissionsCount() {
+			return activeMissionsCount;
+		}
+
+		public void setActiveMissionsCount(int activeMissionsCount) {
+			this.activeMissionsCount = activeMissionsCount;
+		}
+
+		public int getParticipantsCount() {
+			return participantsCount;
+		}
+
+		public void setParticipantsCount(int participantsCount) {
+			this.participantsCount = participantsCount;
 		}
 	}
 }
