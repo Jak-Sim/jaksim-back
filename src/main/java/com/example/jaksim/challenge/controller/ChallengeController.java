@@ -68,13 +68,6 @@ public class ChallengeController {
             @Parameter(description = "챌린지 생성 요청 데이터", required = true)
             @RequestBody ChallengeCreateRequest request,
             @RequestHeader(value = "user-uuid", required = false) String userUuid) {
-
-        // 테스트용 기본값 설정 (실제로는 랜덤 UUID 사용)
-        if (userUuid == null || userUuid.isEmpty()) {
-            userUuid = UUID.randomUUID().toString(); // 테스트용 임시 UUID
-            System.out.println("테스트용 UUID 생성: " + userUuid);
-        }
-
         ResponseDto response = challengeService.createChallenge(request, userUuid);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
