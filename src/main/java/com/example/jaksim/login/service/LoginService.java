@@ -45,22 +45,20 @@ public class LoginService {
 		login.setUserUuid(userUuid);
 		loginRepository.save(login); // DB에 저장
 
-
 		user.setUserUuid(userUuid);
 		user.setSocial(signUpRequest.getSocial());
 		userRepository.save(user);
 
 		Optional<Login> member = loginRepository.findByMemberUniqueIdAndSocial(String.valueOf(login.getMemberUniqueId()), SocialType.KAKAO);
-		TokenDto tokenDto = jwtUtil.createAllToken(member.get().getMemberUniqueId(), String.valueOf(member.get().getTokenVersion()));
+		TokenDto tokenDto = jwtUtil.createAllToken(String.valueOf(member.get().getUserUuid()), String.valueOf(member.get().getTokenVersion()));
 
 		Map<String, Object> responseData = new HashMap<>();
 		responseData.put("AT",tokenDto.getAccessToken());
-		responseData.put("RT",  tokenDto.getRefreshToken());
+		responseData.put("RT",tokenDto.getRefreshToken());
 		responseData.put("nickname", user.getUsername());
 		responseData.put("social", signUpRequest.getSocial());
 
 		return new ResponseEntity<>(new ResponseDto(209, "로그인에 성공하셨습니다.", responseData), HttpStatus.OK);
-
 	}
 
 	public ResponseEntity<ResponseDto> reissue(String refreshToken) {

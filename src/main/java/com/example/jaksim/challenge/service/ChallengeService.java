@@ -4,22 +4,20 @@ import com.example.jaksim.challenge.dto.challenge.ChallengeCreateRequest;
 import com.example.jaksim.challenge.dto.challenge.ChallengeDetailResponse;
 import com.example.jaksim.challenge.dto.challenge.ChallengeListResponse;
 import com.example.jaksim.challenge.dto.challenge.ParticipantResponse;
-import com.example.jaksim.challenge.entity.Challenge;
-import com.example.jaksim.challenge.repository.ChallengeRepository;
+import com.example.jaksim.challenge.entity.*;
+import com.example.jaksim.challenge.repository.*;
 import com.example.jaksim.common.ResponseDto;
 import com.example.jaksim.user.entity.User;
 import com.example.jaksim.user.repository.UserRepository;
 
-import java.util.Optional;
+import java.util.*;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,42 +25,76 @@ public class ChallengeService {
 
 	private final ChallengeRepository challengeRepository;
 	private final UserRepository userRepository;
+	private final MissionRepository missionRepository;
+	private final UserChallengeRepository userChallengeRepository;
+	private final RewardRepository rewardRepository;
+	private final UsersTargetRewardsRepository usersTargetRewardsRepository;
 
-	public ChallengeService(ChallengeRepository challengeRepository, UserRepository userRepository) {
+	public ChallengeService(ChallengeRepository challengeRepository, UserRepository userRepository, MissionRepository missionRepository, UserChallengeRepository userChallengeRepository, RewardRepository rewardRepository, UsersTargetRewardsRepository usersTargetRewardsRepository) {
 		this.challengeRepository = challengeRepository;
 		this.userRepository = userRepository;
-	}
+        this.missionRepository = missionRepository;
+        this.userChallengeRepository = userChallengeRepository;
+        this.rewardRepository = rewardRepository;
+        this.usersTargetRewardsRepository = usersTargetRewardsRepository;
+    }
 
 	// 챌린지 목록 조회
-	public List<ChallengeListResponse> getChallenges(int page) {
+	public ChallengeListResponse getChallenges(int page) {
 		Pageable pageable = PageRequest.of(page, 10); // 페이지당 10개 챌린지
 		Page<Challenge> challengePage = challengeRepository.findAll(pageable);
 
-		return challengePage.getContent().stream()
-			.map(challenge -> new ChallengeListResponse(
-				challenge.getChallengeId(),
-				challenge.getName(),
-				challenge.getBackgroundImage(),
-				challenge.getCreatorUuid(),
-				challenge.getCreatedAt()))
-			.collect(Collectors.toList());
+		List<ChallengeListResponse.ChallengeSummary> summaries = challengePage.getContent().stream()
+				.map(challenge -> new ChallengeListResponse.ChallengeSummary(
+						challenge.getChallengeId(),
+						challenge.getName(),
+						challenge.getBackgroundImage(),
+						challenge.isPublic(),
+						challenge.getCreatorUuid(),
+						challenge.getCreatedAt()))
+				.collect(Collectors.toList());
+
+		return new ChallengeListResponse(summaries);
 	}
 
 	// 챌린지 개인별 조회
-	public List<ChallengeListResponse> getPersonalChallenges(int page, String userUuid){
-		Pageable pageable = PageRequest.of(page, 10); 
-		
+	public Map<String, Object> getPersonalChallenges(int page, String userUuid) {
 		List<Long> challengeIds = userRepository.findByUserUuid(UUID.fromString(userUuid)).get().getChallengeIds();
-
+		Pageable pageable = PageRequest.of(page, 10);
 		Page<Challenge> challengePage = challengeRepository.findByChallengeIdIn(challengeIds, pageable);
-		return challengePage.getContent().stream()
-			.map(challenge -> new ChallengeListResponse(
-				challenge.getChallengeId(),
-				challenge.getName(),
-				challenge.getBackgroundImage(),
-				challenge.getCreatorUuid(),
-				challenge.getCreatedAt()))
-			.collect(Collectors.toList());
+
+		Optional<User> optionalUser = userRepository.findByUserUuid(UUID.fromString(userUuid));
+		if (optionalUser.isEmpty()) {
+			throw new NullPointerException("유저를 찾을 수 없습니다.");
+		}
+		List<ChallengeListResponse.ChallengeSummary> summaries = challengePage.getContent().stream()
+				.map(challenge -> {
+					Long challengeId = challenge.getChallengeId();
+					int activeMissionsCount = getMissionCount(challengeId);
+					int remainingPoint = calculateRemainingPoint(challengeId, userUuid);
+
+					return new ChallengeListResponse.ChallengeSummary(
+							challengeId,
+							challenge.getName(),
+							challenge.getBackgroundImage(),
+							challenge.isPublic(),
+							challenge.getCreatorUuid(),
+							challenge.getCreatedAt(),
+							remainingPoint,
+							activeMissionsCount,
+							challenge.getCurrentParticipants()
+					);
+				})
+				.collect(Collectors.toList());
+		Map<String, Object> responseData = new HashMap<>();
+		responseData.put("challenges", summaries);
+		responseData.put("pageInfo", Map.of(
+				"currentPage", challengePage.getNumber(),
+				"totalPages", challengePage.getTotalPages(),
+				"totalElements", challengePage.getTotalElements(),
+				"size", challengePage.getSize()
+		));
+		return responseData;
 	}
 
 	// 챌린지 상세 조회
@@ -137,7 +169,7 @@ public class ChallengeService {
 										user.getUsername(),
 										0            
 								))
-								.collect(Collectors.toList());
+								.toList();
 
 			int currentParticipants = participantsList.size();
 			
@@ -163,11 +195,20 @@ public class ChallengeService {
 			}
 		
 		Optional<User> optionalUser = userRepository.findByUserUuid(userUuid);
-		if(!optionalUser.isPresent()){
+		if(optionalUser.isEmpty()){
 			throw new NullPointerException("유저 정보가 잘못되었습니다.");
 		}
 		
 		User currentUser = optionalUser.get();
+
+		UserChallenge userChallenge = userChallengeRepository.findByUserAndChallenge(currentUser, challenge)
+				.orElseGet(() -> {
+					UserChallenge newUserChallenge = new UserChallenge();
+					newUserChallenge.setUser(currentUser);
+					newUserChallenge.setChallenge(challenge);
+					newUserChallenge.setPoints(0);
+					return userChallengeRepository.save(newUserChallenge);
+				});
 
 		List<Long> challengeIds = currentUser.getChallengeIds();
 		if(!challengeIds.contains(challenge.getChallengeId())){
@@ -199,9 +240,51 @@ public class ChallengeService {
 				challenge.getTags(),
 				challenge.getCreatedAt(),
 				challenge.getUpdatedAt(),
-				challenge.getCreatorUuid().toString(),
+                challenge.getCreatorUuid(),
 				participantsList
 				);
 	}
-	
+
+	private int getMissionCount(Long challengeId) {
+		return challengeRepository.findById(challengeId)
+				.map(challenge -> missionRepository.countByChallengeAndIsActive(challenge, 1))
+				.orElse(0);
+	}
+
+	private int calculateRemainingPoint(Long challengeId, String userUuid) {
+		User user = userRepository.findByUserUuid(UUID.fromString(userUuid))
+				.orElseThrow(() -> new NullPointerException("유저를 찾을 수 없습니다."));
+		Challenge challenge = challengeRepository.findByChallengeId(challengeId);
+		if (challenge == null) {
+			throw new NullPointerException("챌린지를 찾을 수 없습니다.");
+		}
+		UserChallenge userChallenge = userChallengeRepository.findByUserAndChallenge(user, challenge)
+				.orElseThrow(() -> new NullPointerException("유저 챌린지 정보를 찾을 수 없습니다."));
+		int currentPoints = userChallenge.getPoints();
+
+		List<Reward> targetRewards = usersTargetRewardsRepository.findByUserIdAndIsActiveTrue(user.getUserUuid())
+				.stream()
+				.map(UsersTargetRewards::getReward)
+				.filter(reward -> reward.getChallenge().getChallengeId().equals(challengeId))
+				.toList();
+
+		if (targetRewards.isEmpty()) {
+			return findRewardsPoint(challenge, currentPoints);
+		}
+		Optional<Reward> nearestReward = targetRewards.stream()
+				.filter(reward -> reward.getRequiredPoints() > currentPoints)
+				.min(Comparator.comparingInt(reward -> reward.getRequiredPoints() - currentPoints));
+        return nearestReward.map(reward -> reward.getRequiredPoints() - currentPoints).orElse(0);
+	}
+
+	private int findRewardsPoint(Challenge challenge, int currentPoints) {
+		List<Reward> allRewards = rewardRepository.findByChallenge(challenge);
+		if (allRewards.isEmpty()) {
+			return 0;
+		}
+		Optional<Reward> nearestReward = allRewards.stream()
+				.filter(reward -> reward.getRequiredPoints() > currentPoints)
+				.min(Comparator.comparingInt(Reward::getRequiredPoints));
+        return nearestReward.map(reward -> reward.getRequiredPoints() - currentPoints).orElse(0);
+	}
 }

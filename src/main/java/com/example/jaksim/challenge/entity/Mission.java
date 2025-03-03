@@ -38,6 +38,9 @@ public class Mission {
     @Column(name = "completion_points", nullable = false)
     private int completionPoints;
 
+    @Column(name = "is_active")
+    private int isActive;
+
     @Column(name = "image_url")
     private String backgroundImages;
 
