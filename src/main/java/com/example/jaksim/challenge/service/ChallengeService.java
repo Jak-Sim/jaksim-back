@@ -12,6 +12,8 @@ import com.example.jaksim.user.repository.UserRepository;
 
 import java.util.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.stream.Collectors;
+
+import static com.mysql.cj.conf.PropertyKey.logger;
 
 @Service
 public class ChallengeService {
@@ -123,7 +127,6 @@ public class ChallengeService {
 			);
 	}
 
-	// 챌린지 생성
 	@Transactional
 	public ResponseDto createChallenge(ChallengeCreateRequest request, String userUuid) {
 		// Validate request
@@ -131,26 +134,33 @@ public class ChallengeService {
 			throw new IllegalArgumentException("챌린지 이름은 필수입니다.");
 		}
 
+		User user = userRepository.findByUserUuid(UUID.fromString(userUuid))
+				.orElseThrow(() -> new NullPointerException("유저를 찾을 수 없습니다."));
+
 		Challenge challenge = new Challenge();
 		challenge.setName(request.getName());
 		challenge.setBackgroundImage(request.getBackgroundImage());
 		challenge.setPublic(request.isPublic());
 		challenge.setMaxParticipants(request.getMaxParticipants());
 		challenge.setTags(request.getTags());
-		challenge.setCreatorUuid(userUuid); // JWT에서 받은 userUuid 사용
-		challenge.setParticipationCode(generateParticipationCode()); // Generate participation code
+		challenge.setCreatorUuid(userUuid);
+		challenge.setParticipationCode(UUID.randomUUID().toString());
+		challenge.setCurrentParticipants(1);
 
 		Challenge savedChallenge = challengeRepository.save(challenge);
 
+		UserChallenge userChallenge = new UserChallenge();
+		userChallenge.setUser(user);
+		userChallenge.setChallenge(savedChallenge);
+		userChallenge.setPoints(0);
+		userChallenge.setTotalPointsEarned(0);
+		userChallenge.setTotalPointsSpent(0);
+		userChallengeRepository.save(userChallenge);
+
 		return new ResponseDto(201, "챌린지 생성 성공", Map.of(
-			"challengeId", savedChallenge.getChallengeId(),
-			"participationCode", savedChallenge.getParticipationCode()
+				"challengeId", savedChallenge.getChallengeId(),
+				"participationCode", savedChallenge.getParticipationCode()
 		));
-	}
-
-	private String generateParticipationCode() {
-
-		return UUID.randomUUID().toString();
 	}
 
 
