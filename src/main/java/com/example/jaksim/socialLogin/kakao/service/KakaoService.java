@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import com.example.jaksim.login.dto.LoginRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -54,16 +55,11 @@ public class KakaoService {
 
 
 
-    public ResponseEntity<ResponseDto> getKakaoInfo(final String request, final HttpServletResponse response) {
+    public ResponseEntity<ResponseDto> getKakaoInfo(final LoginRequest requestDto, final HttpServletResponse response) {
 
         //code를 이용해서 Kakao Api용 Accesstoekn과 Refresh토큰을 받아옴
-
-        //request 에 있는 accessToekn 만 빼오면 됨  그럴려면 parse 해서 token 에 저장
-        String accessToken;
+        String accessToken = requestDto.getAccess_token();
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode rootNode = objectMapper.readTree(request);
-            accessToken = rootNode.get("access_token").asText();
             //해당 토큰을 이용해서 유저정보를 요청하는 API요청을 보낸다
             ObjectMapper objectMapper2 = new ObjectMapper();
             System.out.println(accessToken);
@@ -94,6 +90,7 @@ public class KakaoService {
             responseData.put("RT",  tokenDto.getRefreshToken());
             responseData.put("nickname", "멤버 진행중");
             responseData.put("social", "KAKAO");
+            responseData.put("userUuid", member.get().getUserUuid());
 
             return new ResponseEntity<>(new ResponseDto(209, "로그인에 성공하셨습니다.", responseData), HttpStatus.OK);
         } catch (URISyntaxException e) {
