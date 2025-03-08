@@ -168,39 +168,35 @@ public class ChallengeService {
 		if (challenge == null) {
 			throw new NotFoundException("챌린지를 찾을 수 없습니다.");
 		}
-		Optional<User> optionalUser = userRepository.findByUserId(userId);
-		if(optionalUser.isEmpty()){
-			throw new BadRequestException("유저 정보를 찾을 수 없습니다.");
-		}
-		if (!challenge.isPublic()) {
-			if (participationCode == null || !participationCode.equals(challenge.getParticipationCode())) {
-				throw new BadRequestException("비공개 챌린지거나 참여 코드가 맞지 않습니다.");
-			}
-		}
 
-		User currentUser = optionalUser.get();
+		User currentUser = userRepository.findByUserId(userId)
+				.orElseThrow(() -> new BadRequestException("유저 정보를 찾을 수 없습니다."));
 
 		Optional<UserChallenge> existingUserChallenge = userChallengeRepository.findByUserAndChallenge(currentUser, challenge);
-
 		if (existingUserChallenge.isPresent()) {
 			throw new BadRequestException("이미 참여한 챌린지입니다.");
 		}
 
-		if (challenge.getMaxParticipants() + 1 > challenge.getMaxParticipants()) {
+		if (!challenge.isPublic()) {
+			if (participationCode == null || participationCode.trim().isEmpty() ||
+					!participationCode.equals(challenge.getParticipationCode())) {
+				throw new BadRequestException("비공개 챌린지거나 참여 코드가 맞지 않습니다.");
+			}
+		}
+
+		int currentParticipants = userChallengeRepository.countUsersByChallengeChallengeId(challenge.getChallengeId());
+		if (currentParticipants >= challenge.getMaxParticipants()) {
 			throw new BadRequestException("최대 정원을 초과합니다. 참여할 수 없습니다.");
 		}
 
-		UserChallenge userChallenge = userChallengeRepository.findByUserAndChallenge(currentUser, challenge)
-				.orElseGet(() -> {
-					UserChallenge newUserChallenge = new UserChallenge();
-					newUserChallenge.setUser(currentUser);
-					newUserChallenge.setChallenge(challenge);
-					newUserChallenge.setPoints(0);
-					return userChallengeRepository.save(newUserChallenge);
-				});
+		UserChallenge userChallenge = new UserChallenge();
+		userChallenge.setUser(currentUser);
+		userChallenge.setChallenge(challenge);
+		userChallenge.setPoints(0);
+		userChallengeRepository.save(userChallenge);
 
 		List<UUID> challengeIds = currentUser.getChallengeIds();
-		if(!challengeIds.contains(challenge.getChallengeId())){
+		if (!challengeIds.contains(challenge.getChallengeId())) {
 			challengeIds.add(challenge.getChallengeId());
 			currentUser.setChallengeIds(challengeIds);
 			userRepository.save(currentUser);
@@ -216,14 +212,12 @@ public class ChallengeService {
 				))
 				.collect(Collectors.toList());
 
-		int currentParticipants = participantsList.size();
-
 		return new ChallengeDetailResponse(
 				challenge.getChallengeId(),
 				challenge.getName(),
 				challenge.getBackgroundImage(),
 				challenge.isPublic(),
-				currentParticipants,
+				participantsList.size(),
 				challenge.getMaxParticipants(),
 				challenge.getTags(),
 				challenge.getCreatedAt(),

@@ -93,11 +93,8 @@ public class JwtUtil {
 	}
 
 	public String resolveToken(HttpServletRequest httpServletRequest, String token) {
-		System.out.println("comminghere?5");
 		String tokenName = token.equals(ACCESS_KEY) ? ACCESS_KEY : REFRESH_KEY;
-		System.out.println("comminghere?6");
 		String bearerToken = httpServletRequest.getHeader(tokenName);
-		System.out.println("comminghere?");
 		System.out.println(bearerToken);
 		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
 			return bearerToken.substring(7);
@@ -127,23 +124,19 @@ public class JwtUtil {
 	}
 
 	
-	public String getUserUuidFromToken(String token) {
-		 String userUuid = Jwts.parserBuilder()
+	public UUID getUserUuidFromToken(String token) {
+		 UUID userId = UUID.fromString(Jwts.parserBuilder()
 			.setSigningKey(key)
 			.build()
 			.parseClaimsJws(token)
 			.getBody()
-			.getSubject(); 
-		
-		System.out.println("userUuid");
-		System.out.println(userUuid);
+			.getSubject());
 
-
-		return userUuid;
+		return userId;
 	}
 	
-	public Authentication createAuthentication(String userUUID) {
-		UserDetails userDetails = userDetailsServiceImplement.loadUserByUsername(userUUID);
+	public Authentication createAuthentication(UUID userId) {
+		UserDetails userDetails = userDetailsServiceImplement.loadUserByUsername(String.valueOf(userId));
 		return new UsernamePasswordAuthenticationToken(userDetails, null, new ArrayList<>());
 	}
 	public Boolean refreshTokenValidation(String token) {

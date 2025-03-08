@@ -3,7 +3,9 @@ package com.example.jaksim.common.jwt;
 // import com.example.jaksim.common.jwt.*;
 
 import java.io.IOException;
+import java.util.UUID;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 
@@ -38,18 +40,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		System.out.println("requestURI is " + requestURI);
 		if (requestURI.startsWith("/swagger-ui") || requestURI.startsWith("/v3/api-docs") || requestURI.startsWith("/swagger-ui.html")) {
 			filterChain.doFilter(request, response);
-			System.out.println("comming here? ");
-			return; // 인증 건너뛰기
+			return;
 		}
 	
 		
 		String access_token = jwtUtil.resolveToken(request, ACCESS_KEY);
 		String refresh_token = jwtUtil.resolveToken(request, REFRESH_KEY);
-		System.out.println("comminghere?0");
 		if (access_token != null) {
-			System.out.println("comminghere?1");
 			if (jwtUtil.validateToken(access_token)) {
-				System.out.println("comminghere?2");
 				setAuthentication(jwtUtil.getUserUuidFromToken(access_token));
 			} else {
 				jwtExceptionHandler(response, "403 : Invalid Token", HttpStatus.FORBIDDEN.value());
@@ -69,13 +67,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 			String json = new ObjectMapper().writeValueAsString(new TokenMessageDto(msg, statusCode));
 			response.getWriter().write(json);
 		} catch (Exception e){
-			log.error(e.getMessage());
+			throw new JwtException(msg);
 		}
 	}
 
-	public void setAuthentication(String userUuid) {
+	public void setAuthentication(UUID userId) {
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
-		Authentication authentication = jwtUtil.createAuthentication(userUuid);
+		Authentication authentication = jwtUtil.createAuthentication(userId);
 	
 		System.out.println("authentication: " + authentication); 
 		System.out.println("authentication principal: " + authentication.getPrincipal());

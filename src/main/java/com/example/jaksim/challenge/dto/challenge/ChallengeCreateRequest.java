@@ -15,5 +15,4 @@ public class ChallengeCreateRequest {
 	private int minParticipants;
 	private int maxParticipants;
 	private List<String> tags;
-	private UUID userId;
 }

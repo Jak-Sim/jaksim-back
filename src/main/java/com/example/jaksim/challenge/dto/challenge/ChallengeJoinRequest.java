@@ -8,6 +8,5 @@ import java.util.UUID;
 @Getter
 @Setter
 public class ChallengeJoinRequest {
-    private UUID userId;
     private String participationCode;
 }

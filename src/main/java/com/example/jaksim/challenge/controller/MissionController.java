@@ -4,6 +4,7 @@ import com.example.jaksim.challenge.dto.mission.MissionDto;
 import com.example.jaksim.challenge.service.MissionService;
 import com.example.jaksim.challenge.service.PointService;  // 포인트 서비스 추가
 import com.example.jaksim.common.ResponseDto;
+import com.example.jaksim.common.annotation.AuthUser;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -66,7 +67,7 @@ public class MissionController {
     public ResponseEntity<ResponseDto> completeMission(
         @PathVariable UUID challengeId,
         @PathVariable UUID missionId,
-        @RequestParam UUID userId) {
+        @AuthUser UUID userId) {
 
         // 포인트 적립
         pointService.earnPoints(challengeId, userId, missionId);
@@ -79,7 +80,7 @@ public class MissionController {
     public ResponseEntity<ResponseDto> spendPoints(
         @PathVariable UUID challengeId,
         @PathVariable UUID missionId,
-        @RequestParam UUID userId,
+        @AuthUser UUID userId,
         @RequestParam int points) {
         // 포인트 사용
         pointService.spendPoints(challengeId, userId, points);

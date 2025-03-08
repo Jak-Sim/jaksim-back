@@ -1,12 +1,12 @@
 package com.example.jaksim.common.config;
 
-import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,10 +14,18 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Arrays;
 
 @Configuration
-public class Swagger2Config {
+@SecurityScheme(
+        name = "Bearer Authentication",
+        type = SecuritySchemeType.HTTP,
+        bearerFormat = "JWT",
+        scheme = "bearer"
+)
+public class SwaggerConfig {
 
     @Bean
     public OpenAPI openAPI() {
+        String securitySchemeName = "Bearer Authentication";
+
         Info info = new Info()
                 .title("Jaksim API Documentation")
                 .version("v1.0.0")
@@ -42,22 +50,12 @@ public class Swagger2Config {
                 .url("http://jaksim.site/")
                 .description("Production Server");
 
-        // AT만 사용하도록 설정
-        SecurityScheme accessToken = new SecurityScheme()
-                .type(SecurityScheme.Type.HTTP)
-                .scheme("bearer")
-                .bearerFormat("JWT")
-                .in(SecurityScheme.In.HEADER)
-                .name("Authorization");
-
         SecurityRequirement securityRequirement = new SecurityRequirement()
-                .addList("AT");
+                .addList(securitySchemeName);
 
         return new OpenAPI()
                 .info(info)
                 .servers(Arrays.asList(devServer, localServer, prodServer))
-                .components(new Components()
-                        .addSecuritySchemes("AT", accessToken))
                 .addSecurityItem(securityRequirement);
     }
 }
