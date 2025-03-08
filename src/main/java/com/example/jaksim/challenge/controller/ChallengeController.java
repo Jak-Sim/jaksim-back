@@ -73,12 +73,16 @@ public class ChallengeController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @Operation(summary = "챌린지 코드 참여", description = "참여 코드를 통해 챌린지에 참가합니다.")
-    @PostMapping("/join")
-    public ResponseEntity<ResponseDto> challengeJoinByCode(
-            @RequestBody ChallengeJoinRequest request
-    ) throws BadRequestException {
-        ChallengeDetailResponse challengeDetail = challengeService.getChallengeJoin(request.getChallengeId(), request.getUserId());
+    @Operation(summary = "챌린지 참여", description = "특정 챌린지에 참여합니다.")
+    @PostMapping("/join/{challengeId}")
+    public ResponseEntity<ResponseDto> challengeJoin(
+            @RequestBody ChallengeJoinRequest request,
+            @PathVariable UUID challengeId) throws BadRequestException {
+        ChallengeDetailResponse challengeDetail = challengeService.joinChallenge(
+                challengeId,
+                request.getUserId(),
+                request.getParticipationCode()
+        );
         return new ResponseEntity<>(ResponseDto.setSuccess(200, "챌린지 참여 성공", challengeDetail), HttpStatus.OK);
     }
 }

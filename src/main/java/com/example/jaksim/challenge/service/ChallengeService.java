@@ -117,6 +117,10 @@ public class ChallengeService {
 			throw new IllegalArgumentException("챌린지 이름은 필수입니다.");
 		}
 
+		if (request.getMaxParticipants() < 2 || request.getMaxParticipants() > 10) {
+			throw new IllegalArgumentException("최대 참여자 수는 2-10명 입니다.");
+		}
+
 		User user = userRepository.findByUserId(userId)
 				.orElseThrow(() -> new NullPointerException("유저를 찾을 수 없습니다."));
 
@@ -155,19 +159,36 @@ public class ChallengeService {
 		return buildChallengeDetailResponse(challenge);
 	}
 
-	// 챌린지 코드로 참여
-	public ChallengeDetailResponse getChallengeJoin(UUID challengeId, UUID userId) throws BadRequestException {
+	public ChallengeDetailResponse joinChallenge(UUID challengeId, UUID userId, String participationCode) throws BadRequestException {
+		return joinChallengeCommon(challengeId, userId, participationCode);
+	}
+
+	private ChallengeDetailResponse joinChallengeCommon(UUID challengeId, UUID userId, String participationCode) throws BadRequestException {
 		Challenge challenge = challengeRepository.findByChallengeId(challengeId);
-			if (challenge == null) {
-				throw new NotFoundException("챌린지를 찾을 수 없습니다.");
-			}
-		
+		if (challenge == null) {
+			throw new NotFoundException("챌린지를 찾을 수 없습니다.");
+		}
 		Optional<User> optionalUser = userRepository.findByUserId(userId);
 		if(optionalUser.isEmpty()){
 			throw new BadRequestException("유저 정보를 찾을 수 없습니다.");
 		}
-		
+		if (!challenge.isPublic()) {
+			if (participationCode == null || !participationCode.equals(challenge.getParticipationCode())) {
+				throw new BadRequestException("비공개 챌린지거나 참여 코드가 맞지 않습니다.");
+			}
+		}
+
 		User currentUser = optionalUser.get();
+
+		Optional<UserChallenge> existingUserChallenge = userChallengeRepository.findByUserAndChallenge(currentUser, challenge);
+
+		if (existingUserChallenge.isPresent()) {
+			throw new BadRequestException("이미 참여한 챌린지입니다.");
+		}
+
+		if (challenge.getMaxParticipants() + 1 > challenge.getMaxParticipants()) {
+			throw new BadRequestException("최대 정원을 초과합니다. 참여할 수 없습니다.");
+		}
 
 		UserChallenge userChallenge = userChallengeRepository.findByUserAndChallenge(currentUser, challenge)
 				.orElseGet(() -> {
@@ -187,13 +208,13 @@ public class ChallengeService {
 
 		List<User> userList = userRepository.findUsersByChallengeId(challenge.getChallengeId());
 		List<ParticipantResponse> participantsList = userList.stream()
-								.map(user -> new ParticipantResponse(
-										user.getUserId(),
-										null,
-										user.getUsername(),
-										0
-								))
-								.collect(Collectors.toList());
+				.map(user -> new ParticipantResponse(
+						user.getUserId(),
+						null,
+						user.getUsername(),
+						0
+				))
+				.collect(Collectors.toList());
 
 		int currentParticipants = participantsList.size();
 
@@ -207,9 +228,9 @@ public class ChallengeService {
 				challenge.getTags(),
 				challenge.getCreatedAt(),
 				challenge.getUpdatedAt(),
-                challenge.getCreatedUserId(),
+				challenge.getCreatedUserId(),
 				participantsList
-				);
+		);
 	}
 
 	private ChallengeDetailResponse buildChallengeDetailResponse(Challenge challenge) {
