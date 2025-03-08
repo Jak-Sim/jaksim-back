@@ -1,19 +1,20 @@
 package com.example.jaksim.challenge.dto.reward;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import com.example.jaksim.challenge.entity.RewardRequest;
 
 public class RewardRequestDto {
 
-    private Long requestId;
-    private Long rewardId;
-    private Long userId;
+    private UUID requestId;
+    private UUID rewardId;
+    private UUID userId;
     private boolean approved;
     private String rejectionReason;
     private LocalDateTime requestDate;
 
-    public RewardRequestDto(Long requestId, Long rewardId, Long userId, boolean approved, String rejectionReason, LocalDateTime requestDate) {
+    public RewardRequestDto(UUID requestId, UUID rewardId, UUID userId, boolean approved, String rejectionReason, LocalDateTime requestDate) {
         this.requestId = requestId;
         this.rewardId = rewardId;
         this.userId = userId;
@@ -30,27 +31,27 @@ public class RewardRequestDto {
     }
 
     // Getter, Setter
-    public Long getRequestId() {
+    public UUID getRequestId() {
         return requestId;
     }
 
-    public void setRequestId(Long requestId) {
+    public void setRequestId(UUID requestId) {
         this.requestId = requestId;
     }
 
-    public Long getRewardId() {
+    public UUID getRewardId() {
         return rewardId;
     }
 
-    public void setRewardId(Long rewardId) {
+    public void setRewardId(UUID rewardId) {
         this.rewardId = rewardId;
     }
 
-    public Long getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
 

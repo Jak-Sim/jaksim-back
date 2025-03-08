@@ -67,7 +67,7 @@ public class KakaoService {
                 client.getKakaoInfo(new URI(kakaoUserApiUrl), "Bearer " + accessToken)));
             String kakaoAccount = rootnode2.get("id").asText();
             // 가져온 유저정보로 Email과 소셜로그인 정보로 이미 회원가입이 된 유저인지 확인
-            Optional<Login> member = loginRepository.findByMemberUniqueIdAndSocial(kakaoAccount, SocialType.KAKAO);
+            Optional<Login> member = loginRepository.findBySocialUserIdAndSocial(kakaoAccount, SocialType.KAKAO);
             //로그인했는데 첫 로그인일시 회원가입
             if (member.isEmpty()) {
                 Map<String, Object> responseData = new HashMap<>();
@@ -80,8 +80,7 @@ public class KakaoService {
                 return new ResponseEntity<>(new ResponseDto(208,"가입되지 않은 유저입니다", responseData), HttpStatus.ALREADY_REPORTED);
             }
 
-
-            TokenDto tokenDto = jwtUtil.createAllToken(String.valueOf(member.get().getUserUuid()),String.valueOf(member.get().getTokenVersion()));
+            TokenDto tokenDto = jwtUtil.createAllToken(String.valueOf(member.get().getUserId()),String.valueOf(member.get().getTokenVersion()));
             response.addHeader(JwtUtil.ACCESS_KEY, tokenDto.getAccessToken());
             response.addHeader(JwtUtil.REFRESH_KEY, tokenDto.getRefreshToken());
 
@@ -90,9 +89,9 @@ public class KakaoService {
             responseData.put("RT",  tokenDto.getRefreshToken());
             responseData.put("nickname", "멤버 진행중");
             responseData.put("social", "KAKAO");
-            responseData.put("userUuid", member.get().getUserUuid());
+            responseData.put("userUuid", member.get().getUserId());
 
-            return new ResponseEntity<>(new ResponseDto(209, "로그인에 성공하셨습니다.", responseData), HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseDto(209, "로그인에 성공하였습니다.", responseData), HttpStatus.OK);
         } catch (URISyntaxException e) {
             log.error("Invalid URI syntax", e);
             return new ResponseEntity<>(new ResponseDto(401, "KAKAO API 에러"), HttpStatus.BAD_REQUEST);

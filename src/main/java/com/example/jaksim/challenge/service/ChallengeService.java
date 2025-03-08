@@ -1,5 +1,6 @@
 package com.example.jaksim.challenge.service;
 
+import com.amazonaws.services.kms.model.NotFoundException;
 import com.example.jaksim.challenge.dto.challenge.ChallengeCreateRequest;
 import com.example.jaksim.challenge.dto.challenge.ChallengeDetailResponse;
 import com.example.jaksim.challenge.dto.challenge.ChallengeListResponse;
@@ -12,8 +13,7 @@ import com.example.jaksim.user.repository.UserRepository;
 
 import java.util.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,8 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.stream.Collectors;
-
-import static com.mysql.cj.conf.PropertyKey.logger;
 
 @Service
 public class ChallengeService {
@@ -34,7 +32,9 @@ public class ChallengeService {
 	private final RewardRepository rewardRepository;
 	private final UsersTargetRewardsRepository usersTargetRewardsRepository;
 
-	public ChallengeService(ChallengeRepository challengeRepository, UserRepository userRepository, MissionRepository missionRepository, UserChallengeRepository userChallengeRepository, RewardRepository rewardRepository, UsersTargetRewardsRepository usersTargetRewardsRepository) {
+	public ChallengeService(ChallengeRepository challengeRepository, UserRepository userRepository,
+							MissionRepository missionRepository, UserChallengeRepository userChallengeRepository,
+							RewardRepository rewardRepository, UsersTargetRewardsRepository usersTargetRewardsRepository) {
 		this.challengeRepository = challengeRepository;
 		this.userRepository = userRepository;
         this.missionRepository = missionRepository;
@@ -49,40 +49,40 @@ public class ChallengeService {
 		Page<Challenge> challengePage = challengeRepository.findAll(pageable);
 
 		List<ChallengeListResponse.ChallengeSummary> summaries = challengePage.getContent().stream()
-				.map(challenge -> new ChallengeListResponse.ChallengeSummary(
+				.map(challenge -> ChallengeListResponse.ChallengeSummary.of(
 						challenge.getChallengeId(),
 						challenge.getName(),
 						challenge.getBackgroundImage(),
 						challenge.isPublic(),
-						challenge.getCreatorUuid(),
+						challenge.getCreatedUserId(),
 						challenge.getCreatedAt()))
 				.collect(Collectors.toList());
 
-		return new ChallengeListResponse(summaries);
+		return ChallengeListResponse.of(summaries);
 	}
 
 	// 챌린지 개인별 조회
-	public Map<String, Object> getPersonalChallenges(int page, String userUuid) {
-		List<Long> challengeIds = userRepository.findByUserUuid(UUID.fromString(userUuid)).get().getChallengeIds();
+	public Map<String, Object> getPersonalChallenges(int page, UUID userId) {
+		List<UUID> challengeIds = userRepository.findByUserId(userId).get().getChallengeIds();
 		Pageable pageable = PageRequest.of(page, 10);
 		Page<Challenge> challengePage = challengeRepository.findByChallengeIdIn(challengeIds, pageable);
 
-		Optional<User> optionalUser = userRepository.findByUserUuid(UUID.fromString(userUuid));
+		Optional<User> optionalUser = userRepository.findByUserId(userId);
 		if (optionalUser.isEmpty()) {
 			throw new NullPointerException("유저를 찾을 수 없습니다.");
 		}
 		List<ChallengeListResponse.ChallengeSummary> summaries = challengePage.getContent().stream()
 				.map(challenge -> {
-					Long challengeId = challenge.getChallengeId();
+					UUID challengeId = challenge.getChallengeId();
 					int activeMissionsCount = getMissionCount(challengeId);
-					int remainingPoint = calculateRemainingPoint(challengeId, userUuid);
+					int remainingPoint = calculateRemainingPoint(challengeId, userId);
 
 					return new ChallengeListResponse.ChallengeSummary(
 							challengeId,
 							challenge.getName(),
 							challenge.getBackgroundImage(),
 							challenge.isPublic(),
-							challenge.getCreatorUuid(),
+							challenge.getCreatedUserId(),
 							challenge.getCreatedAt(),
 							remainingPoint,
 							activeMissionsCount,
@@ -102,39 +102,22 @@ public class ChallengeService {
 	}
 
 	// 챌린지 상세 조회
-	public ChallengeDetailResponse getChallengeDetail(Long challengeId) {
+	public ChallengeDetailResponse getChallengeDetail(UUID challengeId) {
 		Challenge challenge = challengeRepository.findByChallengeId(challengeId);
 		if (challenge == null) {
-			throw new NullPointerException("챌린지를 찾을 수 없습니다."); // Custom Exception
+			throw new NotFoundException("챌린지를 찾을 수 없습니다.");
 		}
-
-		List<User> userList = userRepository.findUsersByChallengeId(challenge.getChallengeId());
-			
-
-		int currentParticipants = userList.size();
-
-		return new ChallengeDetailResponse(
-			challenge.getChallengeId(),
-			challenge.getName(),
-			challenge.getBackgroundImage(),
-			challenge.isPublic(),
-			currentParticipants,
-			challenge.getMaxParticipants(),
-			challenge.getTags(),
-			challenge.getCreatedAt(),
-			challenge.getUpdatedAt(),
-			challenge.getCreatorUuid()
-			);
+		return buildChallengeDetailResponse(challenge);
 	}
 
 	@Transactional
-	public ResponseDto createChallenge(ChallengeCreateRequest request, String userUuid) {
+	public ResponseDto createChallenge(ChallengeCreateRequest request, UUID userId) {
 		// Validate request
 		if (request.getName() == null || request.getName().isEmpty()) {
 			throw new IllegalArgumentException("챌린지 이름은 필수입니다.");
 		}
 
-		User user = userRepository.findByUserUuid(UUID.fromString(userUuid))
+		User user = userRepository.findByUserId(userId)
 				.orElseThrow(() -> new NullPointerException("유저를 찾을 수 없습니다."));
 
 		Challenge challenge = new Challenge();
@@ -143,7 +126,7 @@ public class ChallengeService {
 		challenge.setPublic(request.isPublic());
 		challenge.setMaxParticipants(request.getMaxParticipants());
 		challenge.setTags(request.getTags());
-		challenge.setCreatorUuid(userUuid);
+		challenge.setCreatedUserId(userId);
 		challenge.setParticipationCode(UUID.randomUUID().toString());
 		challenge.setCurrentParticipants(1);
 
@@ -163,50 +146,25 @@ public class ChallengeService {
 		));
 	}
 
-
-	// 챌린지 상세 조회
+	// 참여 코드로 조회
 	public ChallengeDetailResponse getChallengeFindDetail(String participationCode) {
-			Challenge challenge = challengeRepository.findByParticipationCode(participationCode);
-			if (challenge == null) {
-				throw new NullPointerException("챌린지를 찾을 수 없습니다."); 
-			}
-
-			List<User> userList = userRepository.findUsersByChallengeId(challenge.getChallengeId());
-			List<ParticipantResponse> participantsList = userList.stream()
-								.map(user -> new ParticipantResponse(
-										user.getUserUuid().toString(),  
-										null,
-										user.getUsername(),
-										0            
-								))
-								.toList();
-
-			int currentParticipants = participantsList.size();
-			
-			return new ChallengeDetailResponse(
-				challenge.getChallengeId(),
-				challenge.getName(),
-				challenge.getBackgroundImage(),
-				challenge.isPublic(),
-				currentParticipants,
-				challenge.getMaxParticipants(),
-				challenge.getTags(),
-				challenge.getCreatedAt(),
-				challenge.getUpdatedAt(),
-				challenge.getCreatorUuid()
-			);
+		Challenge challenge = challengeRepository.findByParticipationCode(participationCode);
+		if (challenge == null) {
+			throw new NotFoundException("챌린지를 찾을 수 없습니다.");
 		}
+		return buildChallengeDetailResponse(challenge);
+	}
 
 	// 챌린지 코드로 참여
-	public ChallengeDetailResponse getChallengeJoin(Long challengeId, UUID userUuid){
+	public ChallengeDetailResponse getChallengeJoin(UUID challengeId, UUID userId) throws BadRequestException {
 		Challenge challenge = challengeRepository.findByChallengeId(challengeId);
 			if (challenge == null) {
-				throw new NullPointerException("챌린지를 찾을 수 없습니다."); 
+				throw new NotFoundException("챌린지를 찾을 수 없습니다.");
 			}
 		
-		Optional<User> optionalUser = userRepository.findByUserUuid(userUuid);
+		Optional<User> optionalUser = userRepository.findByUserId(userId);
 		if(optionalUser.isEmpty()){
-			throw new NullPointerException("유저 정보가 잘못되었습니다.");
+			throw new BadRequestException("유저 정보를 찾을 수 없습니다.");
 		}
 		
 		User currentUser = optionalUser.get();
@@ -220,18 +178,17 @@ public class ChallengeService {
 					return userChallengeRepository.save(newUserChallenge);
 				});
 
-		List<Long> challengeIds = currentUser.getChallengeIds();
+		List<UUID> challengeIds = currentUser.getChallengeIds();
 		if(!challengeIds.contains(challenge.getChallengeId())){
 			challengeIds.add(challenge.getChallengeId());
 			currentUser.setChallengeIds(challengeIds);
 			userRepository.save(currentUser);
 		}
 
-
 		List<User> userList = userRepository.findUsersByChallengeId(challenge.getChallengeId());
 		List<ParticipantResponse> participantsList = userList.stream()
 								.map(user -> new ParticipantResponse(
-										user.getUserUuid().toString(),  
+										user.getUserId(),
 										null,
 										user.getUsername(),
 										0
@@ -250,19 +207,46 @@ public class ChallengeService {
 				challenge.getTags(),
 				challenge.getCreatedAt(),
 				challenge.getUpdatedAt(),
-                challenge.getCreatorUuid(),
+                challenge.getCreatedUserId(),
 				participantsList
 				);
 	}
 
-	private int getMissionCount(Long challengeId) {
+	private ChallengeDetailResponse buildChallengeDetailResponse(Challenge challenge) {
+		List<User> userList = userRepository.findUsersByChallengeId(challenge.getChallengeId());
+		List<ParticipantResponse> participantsList = userList.stream()
+				.map(user -> new ParticipantResponse(
+						user.getUserId(),
+						null,
+						user.getUsername(),
+						0
+				))
+				.toList();
+		int currentParticipants = participantsList.size();
+
+		return ChallengeDetailResponse.of(
+				challenge.getChallengeId(),
+				challenge.getName(),
+				challenge.getBackgroundImage(),
+				challenge.isPublic(),
+				currentParticipants,
+				challenge.getMaxParticipants(),
+				challenge.getTags(),
+				challenge.getCreatedAt(),
+				challenge.getUpdatedAt(),
+				challenge.getCreatedUserId(),
+				participantsList
+		);
+	}
+
+	private int getMissionCount(UUID challengeId) {
 		return challengeRepository.findById(challengeId)
 				.map(challenge -> missionRepository.countByChallengeAndIsActive(challenge, 1))
 				.orElse(0);
 	}
 
-	private int calculateRemainingPoint(Long challengeId, String userUuid) {
-		User user = userRepository.findByUserUuid(UUID.fromString(userUuid))
+	private int calculateRemainingPoint(UUID challengeId, UUID userId) {
+		User user = userRepository.findByUserId(userId)
 				.orElseThrow(() -> new NullPointerException("유저를 찾을 수 없습니다."));
 		Challenge challenge = challengeRepository.findByChallengeId(challengeId);
 		if (challenge == null) {
@@ -272,10 +256,10 @@ public class ChallengeService {
 				.orElseThrow(() -> new NullPointerException("유저 챌린지 정보를 찾을 수 없습니다."));
 		int currentPoints = userChallenge.getPoints();
 
-		List<Reward> targetRewards = usersTargetRewardsRepository.findByUserIdAndIsActiveTrue(user.getUserUuid())
+		List<Reward> targetRewards = usersTargetRewardsRepository.findByUserIdAndIsActiveTrue(user.getUserId())
 				.stream()
 				.map(UsersTargetRewards::getReward)
-				.filter(reward -> reward.getChallenge().getChallengeId().equals(challengeId))
+				.filter(reward -> reward.getChallengeId().equals(challengeId))
 				.toList();
 
 		if (targetRewards.isEmpty()) {
@@ -288,7 +272,7 @@ public class ChallengeService {
 	}
 
 	private int findRewardsPoint(Challenge challenge, int currentPoints) {
-		List<Reward> allRewards = rewardRepository.findByChallenge(challenge);
+		List<Reward> allRewards = rewardRepository.findByChallengeId(challenge.getChallengeId());
 		if (allRewards.isEmpty()) {
 			return 0;
 		}

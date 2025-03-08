@@ -8,6 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -16,8 +17,9 @@ import java.time.LocalDateTime;
 public class Mission {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long missionId;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "mission_id", updatable = false, nullable = false)
+    private UUID missionId;
 
     @ManyToOne
     @JoinColumn(name = "challenge_id", nullable = false)

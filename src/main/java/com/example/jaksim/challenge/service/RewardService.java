@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.jaksim.user.entity.User;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,7 +22,6 @@ public class RewardService {
 
     private final RewardRepository rewardRepository;
     private final RewardRequestRepository rewardRequestRepository;
-    private final ChallengeRepository challengeRepository;
     private final UserRepository userRepository;
 
     @Autowired
@@ -29,13 +29,12 @@ public class RewardService {
                          ChallengeRepository challengeRepository, UserRepository userRepository) {
         this.rewardRepository = rewardRepository;
         this.rewardRequestRepository = rewardRequestRepository;
-        this.challengeRepository = challengeRepository;
         this.userRepository = userRepository;
     }
 
     // 챌린지에 속한 리워드 조회
-    public List<RewardDto> getRewards(Long challengeId) {
-        List<Reward> rewards = rewardRepository.findByChallengeChallengeId(challengeId);
+    public List<RewardDto> getRewards(UUID challengeId) {
+        List<Reward> rewards = rewardRepository.findByChallengeId(challengeId);
         return rewards.stream()
                 .map(reward -> {
                     RewardDto rewardDto = new RewardDto();
@@ -54,11 +53,11 @@ public class RewardService {
 
     // 리워드 요청
     @Transactional
-    public RewardRequestDto requestReward(Long userId, Long rewardId, int requestedPoints) {
+    public RewardRequestDto requestReward(UUID userId, UUID rewardId, int requestedPoints) {
         Reward reward = rewardRepository.findById(rewardId)
                 .orElseThrow(() -> new RuntimeException("Reward not found"));
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("유저 없음"));
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (reward.getRemainingQuantity() <= 0) {
             throw new RuntimeException("남은 수량 없음");
@@ -82,8 +81,8 @@ public class RewardService {
 
     // 챌린지장이 리워드 요청 승인
     @Transactional
-    public void approveRewardRequest(Long requestId) {
-        RewardRequest rewardRequest = rewardRequestRepository.findById(requestId)
+    public void approveRewardRequest(UUID rewardRequestId) {
+        RewardRequest rewardRequest = rewardRequestRepository.findByRequestId(rewardRequestId)
                 .orElseThrow(() -> new RuntimeException("Request not found"));
 
         rewardRequest.setIsApproved(true);
@@ -98,8 +97,8 @@ public class RewardService {
 
     // 리워드 거부
     @Transactional
-    public void rejectRewardRequest(Long requestId, String reason) {
-        RewardRequest rewardRequest = rewardRequestRepository.findById(requestId)
+    public void rejectRewardRequest(UUID rewardRequestId, String reason) {
+        RewardRequest rewardRequest = rewardRequestRepository.findByRequestId(rewardRequestId)
                 .orElseThrow(() -> new RuntimeException("Request not found"));
 
         rewardRequest.setRejectionReason(reason);

@@ -1,11 +1,11 @@
 package com.example.jaksim.challenge.dto.reward;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.UUID;
 
 public class RewardDto {
 
-    private Long rewardId;
+    private UUID rewardId;
     private String name;  // 필드명 변경
     private String description;  // 필드명 변경
     private int requiredPoints;
@@ -18,7 +18,8 @@ public class RewardDto {
     public RewardDto() {}
 
     // 모든 필드를 포함하는 생성자
-    public RewardDto(Long rewardId, String name, String description, int requiredPoints, int remainingCount, String rewardImages, boolean approvalRequired, LocalDate expirationDate) {
+    public RewardDto(UUID rewardId, String name, String description, int requiredPoints,
+                     int remainingCount, String rewardImages, boolean approvalRequired, LocalDate expirationDate) {
         this.rewardId = rewardId;
         this.name = name;
         this.description = description;
@@ -30,11 +31,11 @@ public class RewardDto {
     }
 
     // Getter, Setter
-    public Long getRewardId() {
+    public UUID getRewardId() {
         return rewardId;
     }
 
-    public void setRewardId(Long rewardId) {
+    public void setRewardId(UUID rewardId) {
         this.rewardId = rewardId;
     }
 

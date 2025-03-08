@@ -17,8 +17,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 public class Challenge {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long challengeId;
+	@GeneratedValue(strategy = GenerationType.UUID)
+	@Column(name = "challenge_id", updatable = false, nullable = false)
+	private UUID challengeId;
 
 	@Column(nullable = false)
 	private String name;
@@ -40,8 +41,8 @@ public class Challenge {
 	@Column(name = "tag")
 	private List<String> tags;
 
-	@Column(name = "creator_uuid", nullable = false)
-	private String creatorUuid;
+	@Column(name = "created_user_id", nullable = false)
+	private UUID createdUserId;
 
 	@Column(name = "participation_code", unique = true)
 	private String participationCode;

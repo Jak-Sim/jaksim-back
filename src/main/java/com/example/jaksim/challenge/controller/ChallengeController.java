@@ -7,10 +7,9 @@ import com.example.jaksim.common.ResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -28,7 +27,6 @@ public class ChallengeController {
     }
     // 내가 가입한 챌린지 목록 조회 + 목표 보상까지 남은 포인트
 
-
     @Operation(summary = "챌린지 목록 조회", description = "페이지를 기준으로 챌린지 목록을 조회합니다.")
     @GetMapping
     public ResponseEntity<ResponseDto> getChallenges(
@@ -43,48 +41,44 @@ public class ChallengeController {
     public ResponseEntity<ResponseDto> getPersonalChallenges(
             @Parameter(description = "페이지 번호 (기본값: 0)", example = "0")
             @RequestParam(defaultValue = "0") int page,
-            @PathVariable String userId) {
+            @PathVariable UUID userId) {
         Map<String, Object> responseData = challengeService.getPersonalChallenges(page, userId);
         return new ResponseEntity<>(ResponseDto.setSuccess(200, "챌린지 목록 조회 성공", responseData), HttpStatus.OK);
     }
 
-    @Operation(summary = "챌린지 상세 조회", description = "챌린지 ID를 통해 상세 정보를 조회합니다.")
-    @GetMapping("/{challengeId}")
+    @Operation(summary = "챌린지 상세 조회", description = "참여 코드나 챌린지 ID로 챌린지 상세 데이터를 조회합니다.")
+    @GetMapping("/detail")
     public ResponseEntity<ResponseDto> getChallengeDetail(
-        @Parameter(description = "챌린지 ID", required = true, example = "1") 
-        @PathVariable Long challengeId) {
-        ChallengeDetailResponse challengeDetail = challengeService.getChallengeDetail(challengeId);
-        return new ResponseEntity<>(ResponseDto.setSuccess(200, "챌린지 상세 조회 성공", challengeDetail), HttpStatus.OK);
+            @RequestParam(required = false) UUID challengeId,
+            @RequestParam(required = false) String participationCode) {
+        ChallengeDetailResponse challengeDetail;
+        if (challengeId != null) {
+            challengeDetail = challengeService.getChallengeDetail(challengeId);
+        } else if (participationCode != null && !participationCode.isEmpty()) {
+            challengeDetail = challengeService.getChallengeFindDetail(participationCode);
+        } else {
+            throw new IllegalArgumentException("챌린지 ID 또는 참여 코드를 입력하세요.");
+        }
+        return new ResponseEntity<>(
+                ResponseDto.setSuccess(200, "챌린지 상세 조회 성공", challengeDetail),
+                HttpStatus.OK);
     }
 
     @Operation(summary = "챌린지 생성", description = "새로운 챌린지를 생성합니다.")
     @PostMapping("/create")
     public ResponseEntity<ResponseDto> createChallenge(
             @Parameter(description = "챌린지 생성 요청 데이터", required = true)
-            @RequestBody ChallengeCreateRequest request,
-            @Parameter(description = "User-uuid", hidden = true)
-            @AuthenticationPrincipal UserDetails userDetails) {
-        String userUuid = userDetails.getUsername();
-        ResponseDto response = challengeService.createChallenge(request, userUuid);
+            @RequestBody ChallengeCreateRequest request) {
+        ResponseDto response = challengeService.createChallenge(request, request.getUserId());
         return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
-
-    @Operation(summary = "챌린지 찾기", description = "참여 코드를 통해 챌린지를 찾습니다.")
-    @PostMapping("/find")
-    public ResponseEntity<ResponseDto> findChallenge(
-        @Parameter(description = "참여 코드 요청 데이터", required = true) 
-        @RequestBody ChallengeFindRequest request) {
-        ChallengeDetailResponse challengeDetail = challengeService.getChallengeFindDetail(request.getParticipationCode());
-        return new ResponseEntity<>(ResponseDto.setSuccess(200, "챌린지 찾기 성공", challengeDetail), HttpStatus.OK);
     }
 
     @Operation(summary = "챌린지 코드 참여", description = "참여 코드를 통해 챌린지에 참가합니다.")
     @PostMapping("/join")
     public ResponseEntity<ResponseDto> challengeJoinByCode(
-            @RequestBody ChallengeJoinRequest request,
-            @RequestHeader("user-uuid") UUID userUuid
-    ){
-        ChallengeDetailResponse challengeDetail = challengeService.getChallengeJoin(request.getChallengeId(), userUuid);
+            @RequestBody ChallengeJoinRequest request
+    ) throws BadRequestException {
+        ChallengeDetailResponse challengeDetail = challengeService.getChallengeJoin(request.getChallengeId(), request.getUserId());
         return new ResponseEntity<>(ResponseDto.setSuccess(200, "챌린지 참여 성공", challengeDetail), HttpStatus.OK);
     }
 }

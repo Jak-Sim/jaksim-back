@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,7 +26,7 @@ public class MissionService {
     }
 
     // 챌린지에 속한 모든 미션 조회
-    public List<MissionDto> getMissions(Long challengeId) {
+    public List<MissionDto> getMissions(UUID challengeId) {
         List<Mission> missions = missionRepository.findAllByChallengeChallengeId(challengeId);
         return missions.stream()
                 .map(mission -> {
@@ -40,7 +41,7 @@ public class MissionService {
     }
 
     // 특정 미션 조회
-    public MissionDto getMission(Long challengeId, Long missionId) {
+    public MissionDto getMission(UUID challengeId, UUID missionId) {
         Mission mission = missionRepository.findByMissionIdAndChallengeChallengeId(missionId, challengeId)
                 .orElseThrow(() -> new RuntimeException("Mission not found"));
         MissionDto missionDto = new MissionDto();
@@ -53,7 +54,7 @@ public class MissionService {
 
     // 미션 생성
     @Transactional
-    public MissionDto createMission(Long challengeId, MissionDto missionDto) {
+    public MissionDto createMission(UUID challengeId, MissionDto missionDto) {
         Challenge challenge = challengeRepository.findById(challengeId)
                 .orElseThrow(() -> new RuntimeException("Challenge not found"));
 
@@ -76,7 +77,7 @@ public class MissionService {
 
     // 미션 삭제
     @Transactional
-    public void deleteMission(Long challengeId, Long missionId) {
+    public void deleteMission(UUID challengeId, UUID missionId) {
         Mission mission = missionRepository.findByMissionIdAndChallengeChallengeId(missionId, challengeId)
                 .orElseThrow(() -> new RuntimeException("Mission not found"));
         missionRepository.delete(mission);

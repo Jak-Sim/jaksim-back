@@ -9,17 +9,12 @@ import org.springframework.data.domain.Pageable;
 
 
 import java.util.List;
+import java.util.UUID;
+
 @EnableJpaRepositories
 @Repository
-public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
-
-	List<Challenge> findAllByOrderByCreatedAtDesc();
-
-	Challenge findByChallengeId(Long challengeId);
-
-	List<Challenge> findByCreatorUuid(String creatorUserUuid);
-
+public interface ChallengeRepository extends JpaRepository<Challenge, UUID> {
+	Challenge findByChallengeId(UUID challengeId);
 	Challenge findByParticipationCode(String participationCode);
-
-	Page<Challenge> findByChallengeIdIn(List<Long> challengeIds, Pageable pageable);
+	Page<Challenge> findByChallengeIdIn(List<UUID> challengeIds, Pageable pageable);
 }

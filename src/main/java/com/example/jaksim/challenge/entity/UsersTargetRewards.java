@@ -16,11 +16,11 @@ import java.util.UUID;
 public class UsersTargetRewards {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_target_reward_id")
-    private Integer userTargetRewardId;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "user_target_reward_id", updatable = false, nullable = false)
+    private UUID userTargetRewardId;
 
-    @Column(name = "user_id", columnDefinition = "BINARY(16)")
+    @Column(name = "user_id")
     private UUID userId;
 
     @ManyToOne
@@ -38,11 +38,4 @@ public class UsersTargetRewards {
     @Column(name = "is_active")
     private Boolean isActive = true;
 
-    public UsersTargetRewards() {
-    }
-
-    public UsersTargetRewards(UUID userId, Reward reward) {
-        this.userId = userId;
-        this.reward = reward;
-    }
 }

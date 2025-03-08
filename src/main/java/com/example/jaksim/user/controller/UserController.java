@@ -38,18 +38,18 @@ public class UserController {
 	}
 
 	@Operation(summary = "유저 데이터 업데이트", description = "유저 정보를 업데이트합니다.")
-	@PutMapping("/user/update/{userUuid}")
+	@PutMapping("/user/update/{userId}")
 	public ResponseEntity<User> updateUser(
-			@PathVariable UUID userUuid,
+			@PathVariable UUID userId,
 			@ModelAttribute UserUpdateDto userUpdateDto,
 			@RequestParam(value = "profileImage", required = false) MultipartFile profileImage) throws IOException {
-        User updatedUser = userService.updateUser(userUuid, userUpdateDto, profileImage);
+        User updatedUser = userService.updateUser(userId, userUpdateDto, profileImage);
         return ResponseEntity.ok(updatedUser);
     }
 
 	@Operation(summary = "유저와 같은 챌린지 멤버 리스트", description = "for chat server")
 	@GetMapping("/user/{userId}/related")
-	public ResponseEntity<UserRecommendResponse> getRelatedUsers(@PathVariable Long userId) {
+	public ResponseEntity<UserRecommendResponse> getRelatedUsers(@PathVariable UUID userId) {
 		UserRecommendResponse response = userService.findRelatedUsers(userId);
 		return ResponseEntity.ok(response);
 	}

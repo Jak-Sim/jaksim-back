@@ -4,10 +4,12 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -16,12 +18,12 @@ import java.time.LocalDateTime;
 public class Reward {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long rewardId;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "reward_id", updatable = false, nullable = false)
+    private UUID rewardId;
 
-    @ManyToOne
-    @JoinColumn(name = "challenge_id", nullable = false)
-    private Challenge challenge;
+    @Column(name = "challenge_id", columnDefinition = "binary(16)", nullable = false)
+    private UUID challengeId;
 
     @Column(nullable = false)
     private String rewardName;

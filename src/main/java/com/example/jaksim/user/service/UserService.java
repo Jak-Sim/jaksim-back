@@ -38,7 +38,7 @@ public class UserService {
     }
 
     public User updateUser(UUID userUuid, UserUpdateDto userUpdateDto, MultipartFile profileImage) throws IOException {
-        Optional<User> optionalUser = userRepository.findByUserUuid(userUuid);
+        Optional<User> optionalUser = userRepository.findByUserId(userUuid);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             user.setUsername(userUpdateDto.getUsername());
@@ -55,8 +55,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserRecommendResponse findRelatedUsers(Long userId) {
-        User user = userRepository.findById(userId)
+    public UserRecommendResponse findRelatedUsers(UUID userId) {
+        User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
         List<UserChallenge> userChallenges = userChallengeRepository.findByUser(user);
 
@@ -66,12 +66,15 @@ public class UserService {
                     .count(0)
                     .build();
         }
-        List<Long> challengeIds = userChallenges.stream()
+
+        List<UUID> challengeIds = userChallenges.stream()
                 .map(uc -> uc.getChallenge().getChallengeId())
                 .collect(Collectors.toList());
+
         List<UserChallenge> relatedUserChallenges = userChallengeRepository
                 .findByChallengeChallengeIdInAndUserUserIdNot(challengeIds, userId);
-        Set<Long> relatedUserIds = relatedUserChallenges.stream()
+
+        Set<UUID> relatedUserIds = relatedUserChallenges.stream()
                 .map(uc -> uc.getUser().getUserId())
                 .collect(Collectors.toSet());
 
@@ -81,16 +84,18 @@ public class UserService {
                     .count(0)
                     .build();
         }
+
         List<User> relatedUsers = userRepository.findAllById(relatedUserIds);
+
         List<UserRecommendResponse.UserDto> userDtos = relatedUsers.stream()
                 .map(relatedUser -> UserRecommendResponse.UserDto.builder()
                         .userId(relatedUser.getUserId())
-                        .userUuid(relatedUser.getUserUuid())
                         .username(relatedUser.getUsername())
                         .email(relatedUser.getEmail())
                         .challengeIds(relatedUser.getChallengeIds())
                         .build())
                 .collect(Collectors.toList());
+
         return UserRecommendResponse.builder()
                 .relatedUsers(userDtos)
                 .count(userDtos.size())

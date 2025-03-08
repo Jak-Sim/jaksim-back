@@ -24,11 +24,11 @@ public class PointService {
 
     // 포인트 적립
     @Transactional
-    public void earnPoints(Long challengeId, String userUUID, Long missionId) {
+    public void earnPoints(UUID challengeId, UUID userId, UUID missionId) {
         Mission mission = missionRepository.findByMissionId(missionId)
                 .orElseThrow(() -> new RuntimeException("Mission not found"));
 
-        UserChallenge userChallenge = userChallengeRepository.findByUserUserUuidAndChallengeChallengeId(UUID.fromString(userUUID), challengeId)
+        UserChallenge userChallenge = userChallengeRepository.findByUserUserIdAndChallengeChallengeId(userId, challengeId)
                 .orElseThrow(() -> new RuntimeException("User not enrolled in challenge"));
 
         // 미션 완료 시 포인트 적립
@@ -38,8 +38,8 @@ public class PointService {
 
     // 포인트 사용
     @Transactional
-    public void spendPoints(Long challengeId, String userUUID, int points) {
-        UserChallenge userChallenge = userChallengeRepository.findByUserUserUuidAndChallengeChallengeId(UUID.fromString(userUUID), challengeId)
+    public void spendPoints(UUID challengeId, UUID userId, int points) {
+        UserChallenge userChallenge = userChallengeRepository.findByUserUserIdAndChallengeChallengeId(userId, challengeId)
                 .orElseThrow(() -> new RuntimeException("User not enrolled in challenge"));
 
         if (userChallenge.getPoints() < points) {

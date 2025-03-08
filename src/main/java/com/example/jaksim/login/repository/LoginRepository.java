@@ -10,13 +10,8 @@ import com.example.jaksim.login.entity.Login;
 import com.example.jaksim.login.entity.SocialType;
 
 @Repository
-public interface LoginRepository extends JpaRepository<Login, Long> {
-
-	Optional<Login> findByMemberUniqueIdAndSocial(String memberUniqueId, SocialType socialType);
-
-	Optional<Object> findByMemberUniqueId(String memberUniqueId);
-
-	Optional<Object> findByUserUuid(UUID memberUniqueId);
-
+public interface LoginRepository extends JpaRepository<Login, UUID> {
+	Optional<Login> findByUserId(UUID userId);
 	Optional<Login> findByTokenVersion(UUID tokenVersion);
+	Optional<Login> findBySocialUserIdAndSocial(String socialUserId, SocialType socialType);
 }

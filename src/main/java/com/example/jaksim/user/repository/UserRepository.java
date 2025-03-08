@@ -9,11 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 
 import com.example.jaksim.user.entity.User;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, UUID> {
 	Optional<User> findByUsername(String username);
-
+	Optional<User> findByUserId(UUID userId);
 	@Query("SELECT u FROM User u JOIN u.challengeIds c WHERE c = :challengeId")
-    List<User> findUsersByChallengeId(@Param("challengeId") Long challengeId);
-
-	Optional<User> findByUserUuid(UUID userUuid);
+    List<User> findUsersByChallengeId(@Param("challengeId") UUID challengeId);
 }
