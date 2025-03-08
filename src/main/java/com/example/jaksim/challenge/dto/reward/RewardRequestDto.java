@@ -9,15 +9,13 @@ public class RewardRequestDto {
 
     private UUID requestId;
     private UUID rewardId;
-    private UUID userId;
     private boolean approved;
     private String rejectionReason;
     private LocalDateTime requestDate;
 
-    public RewardRequestDto(UUID requestId, UUID rewardId, UUID userId, boolean approved, String rejectionReason, LocalDateTime requestDate) {
+    public RewardRequestDto(UUID requestId, UUID rewardId, boolean approved, String rejectionReason, LocalDateTime requestDate) {
         this.requestId = requestId;
         this.rewardId = rewardId;
-        this.userId = userId;
         this.approved = approved;
         this.rejectionReason = rejectionReason;
         this.requestDate = requestDate;
@@ -25,7 +23,6 @@ public class RewardRequestDto {
 
     public RewardRequestDto(RewardRequest rewardRequest) {
         this.requestId = rewardRequest.getRequestId();
-        this.userId = rewardRequest.getUser().getUserId();
         this.rewardId = rewardRequest.getReward().getRewardId();
         this.rejectionReason = rewardRequest.getRejectionReason();
     }
@@ -45,14 +42,6 @@ public class RewardRequestDto {
 
     public void setRewardId(UUID rewardId) {
         this.rewardId = rewardId;
-    }
-
-    public UUID getUserId() {
-        return userId;
-    }
-
-    public void setUserId(UUID userId) {
-        this.userId = userId;
     }
 
     public boolean isApproved() {

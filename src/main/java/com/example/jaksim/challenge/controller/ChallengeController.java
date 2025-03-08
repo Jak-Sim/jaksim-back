@@ -4,8 +4,10 @@ import com.example.jaksim.challenge.dto.challenge.*;
 import com.example.jaksim.challenge.service.ChallengeService;
 import com.example.jaksim.common.ResponseDto;
 
+import com.example.jaksim.common.annotation.AuthUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
@@ -36,12 +38,16 @@ public class ChallengeController {
         return new ResponseEntity<>(ResponseDto.setSuccess(200, "챌린지 목록 조회 성공", challenges), HttpStatus.OK);
     }
 
-    @Operation(summary = "챌린지 목록 조회", description = "유저에 따라 페이지를 기준으로 챌린지 목록을 조회합니다.")
-    @GetMapping("/user/{userId}")
+    @Operation(
+            summary = "내 챌린지 목록 조회",
+            description = "현재 로그인한 사용자의 챌린지 목록을 조회합니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @GetMapping("/mine")
     public ResponseEntity<ResponseDto> getPersonalChallenges(
             @Parameter(description = "페이지 번호 (기본값: 0)", example = "0")
             @RequestParam(defaultValue = "0") int page,
-            @PathVariable UUID userId) {
+            @AuthUser UUID userId) {
         Map<String, Object> responseData = challengeService.getPersonalChallenges(page, userId);
         return new ResponseEntity<>(ResponseDto.setSuccess(200, "챌린지 목록 조회 성공", responseData), HttpStatus.OK);
     }
@@ -64,23 +70,33 @@ public class ChallengeController {
                 HttpStatus.OK);
     }
 
-    @Operation(summary = "챌린지 생성", description = "새로운 챌린지를 생성합니다.")
+    @Operation(
+            summary = "챌린지 생성",
+            description = "새로운 챌린지를 생성합니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
     @PostMapping("/create")
     public ResponseEntity<ResponseDto> createChallenge(
             @Parameter(description = "챌린지 생성 요청 데이터", required = true)
-            @RequestBody ChallengeCreateRequest request) {
-        ResponseDto response = challengeService.createChallenge(request, request.getUserId());
+            @RequestBody ChallengeCreateRequest request,
+            @AuthUser UUID userId) {
+        ResponseDto response = challengeService.createChallenge(request, userId);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @Operation(summary = "챌린지 참여", description = "특정 챌린지에 참여합니다.")
+    @Operation(
+            summary = "챌린지 참여",
+            description = "특정 챌린지에 참여합니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
     @PostMapping("/join/{challengeId}")
     public ResponseEntity<ResponseDto> challengeJoin(
+            @PathVariable UUID challengeId,
             @RequestBody ChallengeJoinRequest request,
-            @PathVariable UUID challengeId) throws BadRequestException {
+            @AuthUser UUID userId) throws BadRequestException {
         ChallengeDetailResponse challengeDetail = challengeService.joinChallenge(
                 challengeId,
-                request.getUserId(),
+                userId,
                 request.getParticipationCode()
         );
         return new ResponseEntity<>(ResponseDto.setSuccess(200, "챌린지 참여 성공", challengeDetail), HttpStatus.OK);

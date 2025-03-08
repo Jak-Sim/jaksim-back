@@ -3,6 +3,7 @@ package com.example.jaksim.challenge.controller;
 import com.example.jaksim.challenge.dto.reward.RewardDto;
 import com.example.jaksim.challenge.dto.reward.RewardRequestDto;
 import com.example.jaksim.challenge.service.RewardService;
+import com.example.jaksim.common.annotation.AuthUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +32,7 @@ public class RewardController {
     // 리워드 요청
     @PostMapping("/request")
     public ResponseEntity<RewardRequestDto> requestReward(@PathVariable UUID challengeId,
-                                                          @RequestParam UUID userId,
+                                                          @AuthUser UUID userId,
                                                           @RequestParam int requestedPoints) {
         RewardRequestDto rewardRequestDto = rewardService.requestReward(userId, challengeId, requestedPoints);
         return ResponseEntity.ok(rewardRequestDto);

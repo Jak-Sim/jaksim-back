@@ -15,4 +15,5 @@ public interface UserChallengeRepository extends JpaRepository<UserChallenge, UU
     Optional<UserChallenge> findByUserAndChallenge(User user, Challenge challenge);
     List<UserChallenge> findByUser(User user);
     List<UserChallenge> findByChallengeChallengeIdInAndUserUserIdNot(Collection<UUID> challenge_challengeId, UUID user_userId);
+    int countUsersByChallengeChallengeId(UUID challengeId);
 }
