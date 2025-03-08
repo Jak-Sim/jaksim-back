@@ -4,11 +4,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Getter
 @Setter
 public class MissionDto {
-    private Long missionId;
+    private UUID missionId;
     private String title;
     private String content;
     private int completionPoints;

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -13,8 +14,9 @@ import java.time.LocalDateTime;
 public class RewardRequest {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long requestId;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "request_id", updatable = false, nullable = false)
+    private UUID requestId;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

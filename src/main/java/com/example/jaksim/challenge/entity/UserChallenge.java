@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Entity
 @Getter
 @Setter
@@ -13,8 +15,9 @@ import lombok.Setter;
 public class UserChallenge {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "user_challenge_id", updatable = false, nullable = false)
+    private UUID userChallengeId;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

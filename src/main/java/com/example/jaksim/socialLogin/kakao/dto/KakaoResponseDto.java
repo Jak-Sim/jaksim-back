@@ -4,6 +4,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.UUID;
+
 /**
  * @author        : mycom
  * @since         : 2023-05-22
@@ -14,18 +16,15 @@ import lombok.ToString;
 @ToString
 public class KakaoResponseDto {
 
-	private Long memberId;
-
-	private String memberUniqueId;
+	private UUID memberId;
 
 	private String memberName;
 
 	private String profileImage;
 
 	@Builder
-	public KakaoResponseDto(Long memberId, String memberUniqueId, String memberName, String profileImage) {
+	public KakaoResponseDto(UUID memberId, String memberName, String profileImage) {
 		this.memberId = memberId;
-		this.memberUniqueId = memberUniqueId;
 		this.memberName = memberName;
 		this.profileImage = profileImage;
 	}

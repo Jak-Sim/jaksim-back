@@ -2,10 +2,22 @@ package com.example.jaksim.challenge.dto.challenge;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ChallengeDetailResponse {
 
-	private Long challengeId;
+	private UUID challengeId;
 	private String name;
 	private String backgroundImage;
 	private boolean isPublic;
@@ -14,115 +26,60 @@ public class ChallengeDetailResponse {
 	private List<String> tags;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
-	private String creatorUserUuid;
-	private List<ParticipantResponse> participants; 
+	private UUID createdUserId;
+	private List<ParticipantResponse> participants;
 
+	public static ChallengeDetailResponse of(
+			UUID challengeId,
+			String name,
+			String backgroundImage,
+			boolean isPublic,
+			int currentParticipants,
+			int maxParticipants,
+			List<String> tags,
+			LocalDateTime createdAt,
+			LocalDateTime updatedAt,
+			UUID createdUserId) {
 
-	public ChallengeDetailResponse(Long challengeId, String name, String backgroundImage, boolean isPublic, int currentParticipants, int maxParticipants, List<String> tags, LocalDateTime createdAt,LocalDateTime updatedAt, String creatorUserUuid) {
-        this.challengeId = challengeId;
-        this.name = name;
-        this.backgroundImage = backgroundImage;
-        this.isPublic = isPublic;
-        this.currentParticipants = currentParticipants;
-        this.maxParticipants = maxParticipants;
-        this.tags = tags;
-        this.createdAt = createdAt;
-		this.updatedAt = updatedAt;
-        this.creatorUserUuid = creatorUserUuid;
-    }
-
-	public ChallengeDetailResponse(Long challengeId, String name, String backgroundImage, boolean isPublic, int currentParticipants, int maxParticipants, List<String> tags, LocalDateTime createdAt,LocalDateTime updatedAt, String creatorUserUuid, List<ParticipantResponse> participants) {
-        this.challengeId = challengeId;
-        this.name = name;
-        this.backgroundImage = backgroundImage;
-        this.isPublic = isPublic;
-        this.currentParticipants = currentParticipants;
-        this.maxParticipants = maxParticipants;
-        this.tags = tags;
-        this.createdAt = createdAt;
-		this.updatedAt = updatedAt;
-        this.creatorUserUuid = creatorUserUuid;
-        this.participants = participants;
-    }
-
-
-	public Long getChallengeId() {
-		return challengeId;
+		return ChallengeDetailResponse.builder()
+				.challengeId(challengeId)
+				.name(name)
+				.backgroundImage(backgroundImage)
+				.isPublic(isPublic)
+				.currentParticipants(currentParticipants)
+				.maxParticipants(maxParticipants)
+				.tags(tags)
+				.createdAt(createdAt)
+				.updatedAt(updatedAt)
+				.createdUserId(createdUserId)
+				.build();
 	}
 
-	public void setChallengeId(Long challengeId) {
-		this.challengeId = challengeId;
+	public static ChallengeDetailResponse of(
+			UUID challengeId,
+			String name,
+			String backgroundImage,
+			boolean isPublic,
+			int currentParticipants,
+			int maxParticipants,
+			List<String> tags,
+			LocalDateTime createdAt,
+			LocalDateTime updatedAt,
+			UUID createdUserId,
+			List<ParticipantResponse> participants) {
+
+		return ChallengeDetailResponse.builder()
+				.challengeId(challengeId)
+				.name(name)
+				.backgroundImage(backgroundImage)
+				.isPublic(isPublic)
+				.currentParticipants(currentParticipants)
+				.maxParticipants(maxParticipants)
+				.tags(tags)
+				.createdAt(createdAt)
+				.updatedAt(updatedAt)
+				.createdUserId(createdUserId)
+				.participants(participants)
+				.build();
 	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getBackgroundImage() {
-		return backgroundImage;
-	}
-
-	public void setBackgroundImage(String backgroundImage) {
-		this.backgroundImage = backgroundImage;
-	}
-
-	public boolean isPublic() {
-		return isPublic;
-	}
-
-	public void setPublic(boolean isPublic) {
-		this.isPublic = isPublic;
-	}
-
-	public int getCurrentParticipants() {
-		return currentParticipants;
-	}
-
-	public void setCurrentParticipants(int currentParticipants) {
-		this.currentParticipants = currentParticipants;
-	}
-
-	public int getMaxParticipants() {
-		return maxParticipants;
-	}
-
-	public void setMaxParticipants(int maxParticipants) {
-		this.maxParticipants = maxParticipants;
-	}
-
-	public List<String> getTags() {
-		return tags;
-	}
-
-	public void setTags(List<String> tags) {
-		this.tags = tags;
-	}
-
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	public String getCreatorUserUuid() {
-		return creatorUserUuid;
-	}
-
-	public void setCreatorUserUuid(String creatorUserUuid) {
-		this.creatorUserUuid = creatorUserUuid;
-	}
-
-	public List<ParticipantResponse> getParticipants() {
-        return participants;
-    }
-
-    public void setParticipants(List<ParticipantResponse> participants) {
-        this.participants = participants;
-    }
 }

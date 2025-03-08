@@ -18,16 +18,12 @@ public class UserDetailsServiceImplement implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String userIdentifier) throws UsernameNotFoundException {
 		try {
-			UUID uuid = UUID.fromString(userIdentifier);
-			Login login = (Login) loginRepository.findByUserUuid(uuid).orElseThrow(
-					() -> new UsernameNotFoundException("존재하지 않는 유저 네임입니다.")
-			);
-			return new UserDetailsImplement(login, String.valueOf(login.getUserUuid()));
+			UUID userId = UUID.fromString(userIdentifier);
+			Login login = loginRepository.findByUserId(userId)
+					.orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 유저입니다."));
+			return new UserDetailsImplement(login, userIdentifier);
 		} catch (IllegalArgumentException e) {
-			Login login = (Login) loginRepository.findByMemberUniqueId(userIdentifier).orElseThrow(
-					() -> new UsernameNotFoundException("존재하지 않는 유저 네임입니다.")
-			);
-			return new UserDetailsImplement(login, String.valueOf(login.getUserUuid()));
+			throw new UsernameNotFoundException("유효하지 않은 UUID 형식입니다.");
 		}
 	}
 }

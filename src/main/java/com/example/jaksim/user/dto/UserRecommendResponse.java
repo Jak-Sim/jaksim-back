@@ -20,10 +20,9 @@ public class UserRecommendResponse {
 
     @Builder
     public static class UserDto {
-        private Long userId;
-        private UUID userUuid;
+        private UUID userId;
         private String username;
         private String email;
-        private List<Long> challengeIds;
+        private List<UUID> challengeIds;
     }
 }

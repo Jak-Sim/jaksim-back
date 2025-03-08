@@ -26,7 +26,6 @@ public class LoginController {
 	@PostMapping("/sign-up")
 	public ResponseEntity<ResponseDto> signUp(@RequestBody SignUpRequest signUpRequest) {
 			return loginService.signUp(signUpRequest);
-
 	}
 
 	@PostMapping("/refresh-token")

@@ -1,11 +1,11 @@
 package com.example.jaksim.challenge.dto.challenge;
 
 
+import lombok.Getter;
+
+import java.util.UUID;
+
+@Getter
 public class ChallengeFindRequest {
-	private String participationCode;
-
-	public String getParticipationCode() {
-		return participationCode;
-	}
-
+	private UUID participationCode;
 }
