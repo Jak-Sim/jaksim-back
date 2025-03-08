@@ -1,5 +1,6 @@
 package com.example.jaksim.challenge.service;
 
+import com.amazonaws.services.kms.model.NotFoundException;
 import com.example.jaksim.challenge.dto.mission.MissionDto;
 import com.example.jaksim.challenge.entity.Mission;
 import com.example.jaksim.challenge.repository.MissionRepository;
@@ -27,6 +28,8 @@ public class MissionService {
 
     // 챌린지에 속한 모든 미션 조회
     public List<MissionDto> getMissions(UUID challengeId) {
+        Challenge challenge = challengeRepository.findById(challengeId)
+                .orElseThrow(() -> new NotFoundException("챌린지를 찾을 수 없습니다."));
         List<Mission> missions = missionRepository.findAllByChallengeChallengeId(challengeId);
         return missions.stream()
                 .map(mission -> {
@@ -42,8 +45,10 @@ public class MissionService {
 
     // 특정 미션 조회
     public MissionDto getMission(UUID challengeId, UUID missionId) {
+        Challenge challenge = challengeRepository.findById(challengeId)
+                .orElseThrow(() -> new NotFoundException("챌린지를 찾을 수 없습니다."));
         Mission mission = missionRepository.findByMissionIdAndChallengeChallengeId(missionId, challengeId)
-                .orElseThrow(() -> new RuntimeException("Mission not found"));
+                .orElseThrow(() -> new NotFoundException("미션을 찾을 수 없습니다."));
         MissionDto missionDto = new MissionDto();
         missionDto.setMissionId(mission.getMissionId());
         missionDto.setTitle(mission.getTitle());
@@ -56,7 +61,7 @@ public class MissionService {
     @Transactional
     public MissionDto createMission(UUID challengeId, MissionDto missionDto) {
         Challenge challenge = challengeRepository.findById(challengeId)
-                .orElseThrow(() -> new RuntimeException("Challenge not found"));
+                .orElseThrow(() -> new NotFoundException("챌린지를 찾을 수 없습니다."));
 
         Mission mission = new Mission();
         mission.setChallenge(challenge);
@@ -78,8 +83,10 @@ public class MissionService {
     // 미션 삭제
     @Transactional
     public void deleteMission(UUID challengeId, UUID missionId) {
+        Challenge challenge = challengeRepository.findById(challengeId)
+                .orElseThrow(() -> new NotFoundException("챌린지를 찾을 수 없습니다."));
         Mission mission = missionRepository.findByMissionIdAndChallengeChallengeId(missionId, challengeId)
-                .orElseThrow(() -> new RuntimeException("Mission not found"));
+                .orElseThrow(() -> new NotFoundException("Mission not found"));
         missionRepository.delete(mission);
     }
 }
