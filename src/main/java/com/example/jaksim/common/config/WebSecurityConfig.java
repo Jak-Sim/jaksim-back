@@ -45,7 +45,8 @@ public class WebSecurityConfig {
                                 "/sign-in/kakao",
                                 "/sign-up/nick-check",
                                 "/sign-up",
-                                "/challenge"
+                                "/challenge",
+                                "user/*/related"
                         ).permitAll()
                         .requestMatchers("/challenge/create").authenticated() 
                         // .requestMatchers(request ->
@@ -68,6 +69,7 @@ public class WebSecurityConfig {
 
         config.addAllowedOriginPattern("http://localhost:[*]");
         config.addAllowedOriginPattern("http://113.30.28.42:[*]");
+        config.addAllowedOriginPattern("http://43.201.22.201:[*]");
 
         config.addExposedHeader(JwtUtil.ACCESS_KEY);
         config.addExposedHeader(JwtUtil.REFRESH_KEY);
