@@ -17,4 +17,5 @@ public interface ChallengeRepository extends JpaRepository<Challenge, UUID> {
 	Challenge findByChallengeId(UUID challengeId);
 	Challenge findByParticipationCode(String participationCode);
 	Page<Challenge> findByChallengeIdIn(List<UUID> challengeIds, Pageable pageable);
+	Page<Challenge> findByIsPublicTrue(Pageable pageable);
 }

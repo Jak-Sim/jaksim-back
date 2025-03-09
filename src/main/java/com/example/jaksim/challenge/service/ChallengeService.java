@@ -46,7 +46,7 @@ public class ChallengeService {
 	// 챌린지 목록 조회
 	public ChallengeListResponse getChallenges(int page) {
 		Pageable pageable = PageRequest.of(page, 10); // 페이지당 10개 챌린지
-		Page<Challenge> challengePage = challengeRepository.findAll(pageable);
+		Page<Challenge> challengePage = challengeRepository.findByIsPublicTrue(pageable);
 
 		List<ChallengeListResponse.ChallengeSummary> summaries = challengePage.getContent().stream()
 				.map(challenge -> ChallengeListResponse.ChallengeSummary.of(
